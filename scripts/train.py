@@ -493,5 +493,9 @@ def _evaluate(
 
 
 if __name__ == "__main__":
-    train()
-    #evaluate()
+    import sys; print(sys.argv)
+    if sys.argv[1] == "eval":
+        sys.argv.pop(1)
+        evaluate()
+    else:
+        train()

@@ -166,7 +166,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["evaluate", "000", "RetinaUNetV001_D3V001_3d", "0", "--boxes", "--analyze_boxes"],
+            "args": ["eval", "000", "RetinaUNetV001_D3V001_3d", "0", "--boxes", "--analyze_boxes"],
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": ".",
