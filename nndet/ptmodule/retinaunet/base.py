@@ -16,59 +16,51 @@ limitations under the License.
 
 from __future__ import annotations
 
-import os
 import copy
+import os
 from collections import defaultdict
-from pathlib import Path
 from functools import partial
-from typing import Callable, Hashable, Sequence, Dict, Any, Type
+from pathlib import Path
+from typing import Any, Callable, Dict, Hashable, Sequence
 
-import torch
 import numpy as np
+import torch
 from loguru import logger
-from torchvision.models.detection.rpn import AnchorGenerator
 
-from nndet.utils.tensor import to_numpy
-from nndet.evaluator.det import BoxEvaluator
-from nndet.evaluator.seg import SegmentationEvaluator
-
-from nndet.core.retina import BaseRetinaNet
-from nndet.core.boxes.matcher import IoUMatcher
-from nndet.core.boxes.sampler import HardNegativeSamplerBatched
-from nndet.core.boxes.coder import CoderType, BoxCoderND
-from nndet.core.boxes.anchors import get_anchor_generator
-from nndet.core.boxes.ops import box_iou
-from nndet.core.boxes.anchors import AnchorGeneratorType
-
-from nndet.ptmodule.base_module import LightningBaseModuleSWA, LightningBaseModule
-
-from nndet.arch.conv import Generator, ConvInstanceRelu, ConvGroupRelu
 from nndet.arch.blocks.basic import StackedConvBlock2
+from nndet.arch.conv import ConvGroupRelu, ConvInstanceRelu, Generator
+from nndet.arch.decoder.base import DecoderType, UFPNModular
 from nndet.arch.encoder.abstract import EncoderType
 from nndet.arch.encoder.modular import Encoder
-from nndet.arch.decoder.base import DecoderType, BaseUFPN, UFPNModular
-from nndet.arch.heads.classifier import ClassifierType, CEClassifier
-from nndet.arch.heads.regressor import RegressorType, L1Regressor
-from nndet.arch.heads.comb import HeadType, DetectionHeadHNM
-from nndet.arch.heads.segmenter import SegmenterType, DiCESegmenter
-
-from nndet.training.optimizer import get_params_no_wd_on_norm
-from nndet.training.learning_rate import LinearWarmupPolyLR
-
+from nndet.arch.heads.classifier import CEClassifier, ClassifierType
+from nndet.arch.heads.comb import DetectionHeadHNM, HeadType
+from nndet.arch.heads.regressor import L1Regressor, RegressorType
+from nndet.arch.heads.segmenter import DiCESegmenter, SegmenterType
+from nndet.core.boxes.anchors import AnchorGeneratorType, get_anchor_generator
+from nndet.core.boxes.coder import BoxCoderND, CoderType
+from nndet.core.boxes.matcher import IoUMatcher
+from nndet.core.boxes.ops import box_iou
+from nndet.core.boxes.sampler import HardNegativeSamplerBatched
+from nndet.core.retina import BaseRetinaNet
+from nndet.evaluator.det import BoxEvaluator
+from nndet.evaluator.seg import SegmentationEvaluator
+from nndet.inference.ensembler.detection import BoxEnsemblerSelective
+from nndet.inference.ensembler.segmentation import SegmentationEnsembler
+from nndet.inference.helper import predict_dir
+from nndet.inference.loading import get_loader_fn
 from nndet.inference.predictor import Predictor
 from nndet.inference.sweeper import BoxSweeper
-from nndet.inference.transforms import get_tta_transforms, Inference2D
-from nndet.inference.loading import get_loader_fn
-from nndet.inference.helper import predict_dir
-from nndet.inference.ensembler.segmentation import SegmentationEnsembler
-from nndet.inference.ensembler.detection import BoxEnsemblerSelective
-
+from nndet.inference.transforms import Inference2D, get_tta_transforms
 from nndet.io.transforms import (
     Compose,
+    FindInstances,
     Instances2Boxes,
     Instances2Segmentation,
-    FindInstances,
-    )
+)
+from nndet.ptmodule.base_module import LightningBaseModuleSWA
+from nndet.training.learning_rate import LinearWarmupPolyLR
+from nndet.training.optimizer import get_params_no_wd_on_norm
+from nndet.utils.tensor import to_numpy
 
 
 class RetinaUNetModule(LightningBaseModuleSWA):
@@ -134,6 +126,10 @@ class RetinaUNetModule(LightningBaseModuleSWA):
             )
 
         self.eval_score_key = "mAP_IoU_0.10_0.50_0.05_MaxDet_100"
+        
+        # Track outputs for epoch-end processing (PyTorch Lightning v2.0 compatibility)
+        self.training_step_outputs = []
+        self.validation_step_outputs = []
 
     def training_step(self, batch, batch_idx):
         """
@@ -154,7 +150,9 @@ class RetinaUNetModule(LightningBaseModuleSWA):
             batch_num=batch_idx,
         )
         loss = sum(losses.values())
-        return {"loss": loss, **{key: l.detach().item() for key, l in losses.items()}}
+        output = {"loss": loss, **{key: l.detach().item() for key, l in losses.items()}}
+        self.training_step_outputs.append(output)
+        return output
 
     def validation_step(self, batch, batch_idx):
         """
@@ -178,8 +176,10 @@ class RetinaUNetModule(LightningBaseModuleSWA):
             loss = sum(losses.values())
 
         self.evaluation_step(prediction=prediction, targets=targets)
-        return {"loss": loss.detach().item(),
+        output = {"loss": loss.detach().item(),
                 **{key: l.detach().item() for key, l in losses.items()}}
+        self.validation_step_outputs.append(output)
+        return output
 
     def evaluation_step(
         self,
@@ -233,16 +233,16 @@ class RetinaUNetModule(LightningBaseModuleSWA):
             target=gt_seg,
             )
 
-    def training_epoch_end(self, training_step_outputs):
+    def on_train_epoch_end(self):
         """
         Log train loss to loguru logger
         """
         # process and log losses
         vals = defaultdict(list)
-        for _val in training_step_outputs:
+        for _val in self.training_step_outputs:
             for _k, _v in _val.items():
                 if _k == "loss":
-                    vals[_k].append(_v.detach().item())
+                    vals[_k].append(_v.detach().item() if hasattr(_v, 'detach') else _v)
                 else:
                     vals[_k].append(_v)
 
@@ -251,15 +251,18 @@ class RetinaUNetModule(LightningBaseModuleSWA):
             if _key == "loss":
                 logger.info(f"Train loss reached: {mean_val:0.5f}")
             self.log(f"train_{_key}", mean_val, sync_dist=True)
-        return super().training_epoch_end(training_step_outputs)
+        
+        # Clear outputs for next epoch
+        self.training_step_outputs.clear()
+        super().on_train_epoch_end()
 
-    def validation_epoch_end(self, validation_step_outputs):
+    def on_validation_epoch_end(self):
         """
         Log val loss to loguru logger
         """
         # process and log losses
         vals = defaultdict(list)
-        for _val in validation_step_outputs:
+        for _val in self.validation_step_outputs:
             for _k, _v in _val.items():
                 vals[_k].append(_v)
 
@@ -271,7 +274,10 @@ class RetinaUNetModule(LightningBaseModuleSWA):
 
         # process and log metrics
         self.evaluation_end()
-        return super().validation_epoch_end(validation_step_outputs)
+        
+        # Clear outputs for next epoch
+        self.validation_step_outputs.clear()
+        super().on_validation_epoch_end()
 
     def evaluation_end(self):
         """

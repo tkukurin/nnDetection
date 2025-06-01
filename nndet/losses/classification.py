@@ -15,11 +15,10 @@ limitations under the License.
 """
 
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
-
-from torch import Tensor
+import torch.nn.functional as F
 from loguru import logger
+from torch import Tensor
 
 from nndet.losses.base import reduction_helper
 from nndet.utils import make_onehot_batch

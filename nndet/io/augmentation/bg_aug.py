@@ -14,49 +14,49 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from typing import Sequence, List
-from loguru import logger
-
-from nndet.io.augmentation.base import AugmentationSetup, get_patch_size
-from nndet.utils.info import SuppressPrint
+from typing import List, Sequence
 
 from batchgenerators.transforms.abstract_transforms import Compose
-from batchgenerators.transforms.spatial_transforms import (
-    SpatialTransform,
-    MirrorTransform,
-)
-from batchgenerators.transforms.resample_transforms import (
-    SimulateLowResolutionTransform,
-)
-from batchgenerators.transforms.crop_and_pad_transforms import (
-    CenterCropTransform,
+from batchgenerators.transforms.channel_selection_transforms import (
+    DataChannelSelectionTransform,
+    SegChannelSelectionTransform,
 )
 from batchgenerators.transforms.color_transforms import (
-    GammaTransform,
     BrightnessMultiplicativeTransform,
     BrightnessTransform,
     ContrastAugmentationTransform,
+    GammaTransform,
+)
+from batchgenerators.transforms.crop_and_pad_transforms import (
+    CenterCropTransform,
 )
 from batchgenerators.transforms.noise_transforms import (
     GaussianBlurTransform,
     GaussianNoiseTransform,
 )
-from batchgenerators.transforms.channel_selection_transforms import (
-    DataChannelSelectionTransform,
-    SegChannelSelectionTransform,
+from batchgenerators.transforms.resample_transforms import (
+    SimulateLowResolutionTransform,
+)
+from batchgenerators.transforms.spatial_transforms import (
+    MirrorTransform,
+    SpatialTransform,
 )
 from batchgenerators.transforms.utility_transforms import (
+    NumpyToTensor,
     RemoveLabelTransform,
     RenameTransform,
-    NumpyToTensor,
-    )
+)
+from loguru import logger
+
+from nndet.io.augmentation.base import AugmentationSetup, get_patch_size
+from nndet.utils.info import SuppressPrint
 
 with SuppressPrint():
     from nnunet.training.data_augmentation.custom_transforms import (
-        Convert3DTo2DTransform,
         Convert2DTo3DTransform,
+        Convert3DTo2DTransform,
         MaskTransform,
-        )
+    )
 
 from nndet.io.augmentation import AUGMENTATION_REGISTRY
 
@@ -140,7 +140,7 @@ class DefaultAug(NoAug):
         tr_transforms.append(SpatialTransform(
             self._spatial_transform_patch_size,
             patch_center_dist_from_border=None,
-            
+
             do_elastic_deform=self.params.get("do_elastic"),
             alpha=self.params.get("elastic_deform_alpha"),
             sigma=self.params.get("elastic_deform_sigma"),
@@ -152,7 +152,7 @@ class DefaultAug(NoAug):
 
             do_scale=self.params.get("do_scaling"),
             scale=self.params.get("scale_range"),
-            
+
             order_data=self.params.get("order_data"),
             border_mode_data=self.params.get("border_mode_data"),
             order_seg=self.params.get("order_seg"),
@@ -211,7 +211,7 @@ class BaseMoreAug(NoAug):
         tr_transforms.append(SpatialTransform(
             self._spatial_transform_patch_size,
             patch_center_dist_from_border=None,
-            
+
             do_elastic_deform=self.params.get("do_elastic"),
             alpha=self.params.get("elastic_deform_alpha"),
             sigma=self.params.get("elastic_deform_sigma"),
@@ -223,7 +223,7 @@ class BaseMoreAug(NoAug):
 
             do_scale=self.params.get("do_scaling"),
             scale=self.params.get("scale_range"),
-            
+
             order_data=self.params.get("order_data"),
             border_mode_data=self.params.get("border_mode_data"),
             order_seg=self.params.get("order_seg"),
@@ -264,7 +264,7 @@ class BaseMoreAug(NoAug):
         if self.params.get("do_gamma"):
             tr_transforms.append(GammaTransform(
                 self.params.get("gamma_range"),
-                False, 
+                False,
                 True,
                 retain_stats=self.params.get("gamma_retain_stats"),
                 p_per_sample=self.params["p_gamma"]))
@@ -304,7 +304,7 @@ class MoreAug(NoAug):
         tr_transforms.append(SpatialTransform(
             self._spatial_transform_patch_size,
             patch_center_dist_from_border=None,
-            
+
             do_elastic_deform=self.params.get("do_elastic"),
             alpha=self.params.get("elastic_deform_alpha"),
             sigma=self.params.get("elastic_deform_sigma"),
@@ -316,7 +316,7 @@ class MoreAug(NoAug):
 
             do_scale=self.params.get("do_scaling"),
             scale=self.params.get("scale_range"),
-            
+
             order_data=self.params.get("order_data"),
             border_mode_data=self.params.get("border_mode_data"),
             order_seg=self.params.get("order_seg"),
@@ -409,7 +409,7 @@ class InsaneAug(NoAug):
         tr_transforms.append(SpatialTransform(
             self._spatial_transform_patch_size,
             patch_center_dist_from_border=None,
-            
+
             do_elastic_deform=self.params.get("do_elastic"),
             alpha=self.params.get("elastic_deform_alpha"),
             sigma=self.params.get("elastic_deform_sigma"),
@@ -421,7 +421,7 @@ class InsaneAug(NoAug):
 
             do_scale=self.params.get("do_scaling"),
             scale=self.params.get("scale_range"),
-            
+
             order_data=self.params.get("order_data"),
             border_mode_data=self.params.get("border_mode_data"),
             order_seg=self.params.get("order_seg"),

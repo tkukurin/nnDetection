@@ -18,15 +18,14 @@ def boxes2nii():
     """
     Only for visualisation purposes.
     """
-    import os
     import argparse
+    import os
     from pathlib import Path
 
     import numpy as np
     import SimpleITK as sitk
     from loguru import logger
-
-    from nndet.io import save_json, load_pickle
+    from nndet.io import load_pickle, save_json
     from nndet.io.paths import get_task, get_training_dir
     from nndet.utils.info import maybe_verbose_iterable
 
@@ -73,7 +72,7 @@ def boxes2nii():
         res = load_pickle(prediction_dir / f"{cid}_boxes.pkl")
 
         instance_mask = np.zeros(res["original_size_of_raw_data"], dtype=np.uint8)
-        
+
         boxes = res["pred_boxes"]
         scores = res["pred_scores"]
         labels = res["pred_labels"]
@@ -118,12 +117,11 @@ def seg2nii():
     """
     Only for visualisation purposes.
     """
-    import os
     import argparse
+    import os
     from pathlib import Path
 
     import SimpleITK as sitk
-
     from nndet.io import load_pickle
     from nndet.io.paths import get_task, get_training_dir
     from nndet.utils.info import maybe_verbose_iterable
@@ -162,12 +160,12 @@ def seg2nii():
     case_ids = [p.stem.rsplit('_', 1)[0] for p in prediction_dir.glob("*_seg.pkl")]
     for cid in maybe_verbose_iterable(case_ids):
         res = load_pickle(prediction_dir / f"{cid}_seg.pkl")
-    
+
         seg_itk = sitk.GetImageFromArray(res["pred_seg"])
         seg_itk.SetOrigin(res["itk_origin"])
         seg_itk.SetDirection(res["itk_direction"])
         seg_itk.SetSpacing(res["itk_spacing"])
-        
+
         sitk.WriteImage(seg_itk, str(save_dir / f"{cid}_seg.nii.gz"))
 
 
@@ -176,7 +174,7 @@ def unpack():
     from pathlib import Path
 
     from nndet.io.load import unpack_dataset
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('path', type=Path, help="Path to folder to unpack")
     parser.add_argument('num_processes', type=int, help="number of processes to use for unpacking")
@@ -189,7 +187,7 @@ def unpack():
 def hydra_searchpath():
     from hydra import compose as hydra_compose
     from hydra import initialize_config_module
-        
+
     initialize_config_module(config_module="nndet.conf")
     cfg = hydra_compose("config.yaml", return_hydra_config=True)
 
@@ -201,8 +199,9 @@ def hydra_searchpath():
 
 def env():
     import os
-    import torch
     import sys
+
+    import torch
     print(f"----- PyTorch Information -----")
     print(f"PyTorch Version: {torch.version.__version__}")
     print(f"PyTorch Debug: {torch.version.debug}")
@@ -232,4 +231,5 @@ def env():
 
 
 if __name__ == '__main__':
-    env()
+    # env()
+    unpack()

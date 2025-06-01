@@ -14,25 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import json
 import os
 import pickle
-import json
-import yaml
 import time
+from collections import OrderedDict
 from contextlib import contextmanager
 from itertools import repeat
 from multiprocessing.pool import Pool
-from collections import OrderedDict
 from pathlib import Path
-from typing import Sequence, Any, Tuple, Union
-from zipfile import BadZipfile
+from typing import Any, Sequence, Tuple, Union
 
 import numpy as np
 import SimpleITK as sitk
+import yaml
 from loguru import logger
 
-from nndet.io.paths import subfiles, Pathlike
-
+from nndet.io.paths import Pathlike, subfiles
 
 __all__ = ["load_case_cropped", "load_case_from_list",
            "load_properties_of_cropped", "npy_dataset",
@@ -109,7 +107,7 @@ def load_properties_of_cropped(path: Path):
     """
     if not path.suffix == '.pkl':
         path = Path(str(path) + '.pkl')
-    
+
     with open(path, 'rb') as f:
         properties = pickle.load(f)
     return properties
@@ -297,9 +295,15 @@ def load_pickle(path: Path, **kwargs) -> Any:
         path = Path(path)
     if not any([fix == path.suffix for fix in [".pickle", ".pkl"]]):
         path = Path(str(path) + ".pkl")
-
-    with open(path, "rb") as f:
-        data = pickle.load(f, **kwargs)
+    try:
+        with open(path, "rb") as f:
+            data = pickle.load(f, **kwargs)
+    except Exception as e:
+        breakpoint()
+        logger.error(f"Could not load pickle file {path}")
+        print('parent exists:', os.path.exists(path.parent))
+        print('parent files:', os.listdir(path.parent))
+        raise e
     return data
 
 

@@ -7,12 +7,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 
-import torch
-from typing import Callable, Sequence, List, Tuple, TypeVar, Union
-from torchvision.models.detection.rpn import AnchorGenerator
-from loguru import logger
 from itertools import product
+from typing import List, Sequence, Tuple, TypeVar, Union
 
+import torch
+from loguru import logger
+from torchvision.models.detection.rpn import AnchorGenerator
 
 AnchorGeneratorType = TypeVar('AnchorGeneratorType', bound=AnchorGenerator)
 
@@ -57,7 +57,7 @@ def compute_anchors_for_strides(anchors: torch.Tensor,
     for stride in strides:
         if isinstance(stride, (int, float)):
             stride = [stride] * dim
-        
+
         stride_formatted = [stride[0], stride[1], stride[0], stride[1]]
         if dim == 3:
             stride_formatted.extend([stride[2], stride[2]])
@@ -142,10 +142,10 @@ class AnchorGenerator2D(torch.nn.Module):
             size0, size1 = size
             stride0, stride1 = stride
             device = base_anchors.device
-            
+
             shifts_x = torch.arange(0, size0, dtype=torch.float, device=device) * stride0
             shifts_y = torch.arange(0, size1, dtype=torch.float, device=device) * stride1
-            
+
             shift_y, shift_x = torch.meshgrid(shifts_y, shifts_x, indexing="ij")
             shift_x = shift_x.reshape(-1)
             shift_y = shift_y.reshape(-1)
@@ -555,5 +555,5 @@ class AnchorGenerator3DS(AnchorGenerator3D):
         Returns:
             List[int]: number of anchors per positions for each resolution
         """
-        return [len(w) * len(h) * len(d) 
+        return [len(w) * len(h) * len(d)
                 for w, h, d in zip(self.width, self.height, self.depth)]

@@ -14,15 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import time
-import numpy as np
-
 from pathlib import Path
-from loguru import logger
-from typing import Sequence, List, Dict, Any, Tuple
-
+from typing import Any, Dict, List, Sequence, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
+from loguru import logger
 
 from nndet.evaluator import DetectionMetric
 
@@ -114,7 +111,7 @@ class PredictionHistogram(DetectionMetric):
         dt_scores = np.concatenate([r['dtScores'] for r in results])
         gt_ignore = np.concatenate([r['gtIgnore'] for r in results])
         self.check_number_of_iou(dt_matches, dt_ignores)
-        
+
         num_gt = np.count_nonzero(gt_ignore == 0)  # number of ground truth boxes (non ignored)
         if num_gt == 0:
             logger.error("No ground truth found! Returning nothing.")
@@ -156,7 +153,7 @@ class PredictionHistogram(DetectionMetric):
         plt.figure()
         plt.yscale('log')
         if 0 in dt_matches:
-            plt.hist(_dt_scores[_dt_matches == 0], bins=self.bins, range=(0., 1.), 
+            plt.hist(_dt_scores[_dt_matches == 0], bins=self.bins, range=(0., 1.),
                     alpha=0.3, color='g', label='false pos.')
         if 1 in dt_matches:
             plt.hist(_dt_scores[_dt_matches == 1], bins=self.bins, range=(0., 1.),

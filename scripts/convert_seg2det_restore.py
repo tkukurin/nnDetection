@@ -19,9 +19,8 @@ import os
 from pathlib import Path
 
 from hydra import initialize_config_module
-
-from nndet.utils.config import compose
 from nndet.utils.check import env_guard
+from nndet.utils.config import compose
 
 
 @env_guard

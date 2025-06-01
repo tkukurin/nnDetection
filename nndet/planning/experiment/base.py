@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
-from itertools import repeat
-from multiprocessing import Pool
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from typing import Dict, Optional, List, TypeVar
+from itertools import repeat
+from multiprocessing import Pool
+from pathlib import Path
+from typing import Dict, List, TypeVar
 
 import numpy as np
 from loguru import logger
@@ -15,10 +15,10 @@ from nndet.io.load import load_pickle, save_pickle
 from nndet.io.paths import (
     get_case_ids_from_dir,
     get_paths_from_splitted_dir,
-    )
+)
 from nndet.planning.architecture.abstract import ArchitecturePlannerType
-from nndet.preprocessing.preprocessor import PreprocessorType
 from nndet.planning.experiment.utils import run_create_label_preprocessed
+from nndet.preprocessing.preprocessor import PreprocessorType
 
 
 class AbstractPlanner(ABC):

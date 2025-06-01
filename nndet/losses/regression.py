@@ -11,7 +11,6 @@ from typing import Optional
 
 import torch
 
-
 __all__ = ["SmoothL1Loss", "smooth_l1_loss"]
 
 from nndet.core.boxes.ops import generalized_box_iou

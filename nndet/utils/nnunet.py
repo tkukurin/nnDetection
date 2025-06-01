@@ -15,18 +15,17 @@ limitations under the License.
 """
 
 import shutil
-import json
 from itertools import repeat
 from multiprocessing import Pool
-
-import SimpleITK as sitk
-import numpy as np
-from loguru import logger
 from pathlib import Path
-from typing import Sequence, Union
+from typing import Union
 
-from nndet.io.itk import load_sitk_as_array, load_sitk
-from nndet.io.load import save_json, load_json
+import numpy as np
+import SimpleITK as sitk
+from loguru import logger
+
+from nndet.io.itk import load_sitk_as_array
+from nndet.io.load import load_json, save_json
 from nndet.io.paths import get_case_ids_from_dir
 from nndet.io.transforms.instances import instances_to_segmentation_np
 
@@ -121,7 +120,7 @@ class Exporter:
 
         if np.any(np.isnan(instance_seg)):
             logger.error(f"FOUND NAN IN {cid} LABEL")
-        
+
         # instance classes start form 0 which is background in nnUNet
         seg = instances_to_segmentation_np(instance_seg,
                                            meta["instances"],
@@ -146,7 +145,7 @@ class Exporter:
         origin = instance_seg_itk.GetOrigin()
         seg_itk.SetOrigin(origin)
         direction = instance_seg_itk.GetDirection()
-        seg_itk.SetDirection(direction)        
+        seg_itk.SetDirection(direction)
         sitk.WriteImage(seg_itk, str(target_dir / f"{cid}.nii.gz"))
 
     def export_dataset_info(self):
@@ -193,7 +192,7 @@ class Exporter:
         _case_ids = get_case_ids_from_dir(self.label_dir, remove_modality=False)
         case_ids_tr = get_case_ids_from_dir(self.tr_image_dir, remove_modality=True)
         assert len(set(_case_ids).union(case_ids_tr)) == len(_case_ids), "All training  images need a label"
-        dataset_info["numTraining"] = len(case_ids_tr) 
+        dataset_info["numTraining"] = len(case_ids_tr)
 
         dataset_info["training"] = [
             {"image": f"./imagesTr/{cid}.nii.gz", "label": f"./labelsTr/{cid}.nii.gz"}

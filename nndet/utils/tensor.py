@@ -1,16 +1,16 @@
 # SPDX-FileCopyrightText: 2020 Division of Medical Image Computing, German Cancer Research Center (DKFZ), Heidelberg, Germany
 # SPDX-License-Identifier: Apache-2.0
 
-from collections import defaultdict
-
-import torch
 import re
+from collections import abc, defaultdict
+from typing import Any, Callable, List, Mapping, Sequence, Union
+
 import numpy as np
+import torch
 from torch import Tensor
 
-from collections import abc
-from torch._six import string_classes
-from typing import Sequence, Union, Any, Mapping, Callable, List
+# Replace torch._six.string_classes which was removed in newer PyTorch versions
+string_classes = (str, bytes)
 
 np_str_obj_array_pattern = re.compile(r'[SaUO]')
 

@@ -15,24 +15,21 @@ limitations under the License.
 """
 
 import argparse
-from nndet.io.load import save_json
 import os
-import sys
 import shutil
+import sys
 from functools import partial
 from itertools import repeat
 from multiprocessing import Pool
-
 from pathlib import Path, PurePath
-from typing import Union, Sequence, Optional
+from typing import Optional, Sequence, Union
 
 import numpy as np
-
 from hydra import initialize_config_module
 from loguru import logger
-
 from nndet.evaluator.registry import evaluate_box_dir
-from nndet.io import load_pickle, save_pickle, get_task, load_json
+from nndet.io import get_task, load_json, load_pickle, save_pickle
+from nndet.io.load import save_json
 from nndet.utils.clustering import softmax_to_instances
 from nndet.utils.config import compose
 from nndet.utils.info import maybe_verbose_iterable
@@ -139,7 +136,7 @@ def import_nnunet_boxes(
         # create temp dir
         sweep_prediction = sweep_dir / f"sweep_aggregation_{aggregation}"
         sweep_prediction.mkdir(parents=True)
-        
+
         # import with settings
         import_dir(
             nnunet_prediction_dir=nnunet_prediction_dir,
@@ -166,7 +163,7 @@ def import_nnunet_boxes(
     idx = int(np.argmax(scores))
     postprocessing_settings["aggregation"] = aggreagtion_settings[idx]
     logger.info(f"Found aggregation {aggreagtion_settings[idx]} with score {scores[idx]}")
-    
+
     save_pickle(postprocessing_settings, save_dir / "postprocessing.pkl")
     save_json(summary, save_dir / "summary.json")
     return postprocessing_settings
@@ -289,7 +286,7 @@ def copy_and_ensemble(cid, nnunet_dirs, nnunet_prediction_dir):
     assert len(case) == len(nnunet_dirs)
     case_ensemble = np.mean(case, axis=0)
     assert case_ensemble.shape == case[0].shape
-    
+
     np.savez_compressed(nnunet_prediction_dir / f"{cid}.npz", softmax=case_ensemble)
 
 
@@ -299,7 +296,7 @@ def copy_and_ensemble_test(cid, nnunet_dirs, nnunet_prediction_dir):
     assert len(case) == len(nnunet_dirs)
     case_ensemble = np.mean(case, axis=0)
     assert case_ensemble.shape == case[0].shape
-    
+
     np.savez_compressed(nnunet_prediction_dir / f"{cid}.npz", softmax=case_ensemble)
 
 
@@ -372,7 +369,7 @@ if __name__ == '__main__':
     logger.add(sys.stdout, level="INFO")
     log_file = task_dir / "nnUNet" / "import.log"
     logger.add(log_file, level="INFO")
-    
+
     if simple:
         nndet_unet_dir = task_dir / "nnUNet_Simple" / "consolidated"
     else:
@@ -434,7 +431,7 @@ if __name__ == '__main__':
         case_ids = [p.stem for p in nnunet_dir.iterdir() if p.name.endswith(".npz")]
         nnunet_prediction_dir = nndet_unet_dir /f"test_raw_all"
         nnunet_prediction_dir.mkdir(parents=True, exist_ok=True)
-        
+
         if num_workers > 0:
                 with Pool(processes=max(num_workers // 4, 1)) as p:
                     p.starmap(copy_and_ensemble_test,

@@ -16,15 +16,15 @@ limitations under the License.
 
 from os import PathLike
 from pathlib import Path
-from typing import Dict, Sequence, Optional, Tuple
+from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
 from loguru import logger
 
-from nndet.io.load import load_pickle, save_json, save_pickle
-from nndet.evaluator.det import BoxEvaluator
 from nndet.evaluator.case import CaseEvaluator
+from nndet.evaluator.det import BoxEvaluator
 from nndet.evaluator.seg import PerCaseSegmentationEvaluator
+from nndet.io.load import load_pickle, save_json, save_pickle
 
 
 def save_metric_output(scores, curves, base_dir, name):
@@ -32,7 +32,7 @@ def save_metric_output(scores, curves, base_dir, name):
     Helper function to save output of the function in a nice format
     """
     scores_string = {str(key): str(item) for key, item in scores.items()}
-    
+
     save_json(scores_string, base_dir / f"{name}.json")
     save_pickle({"scores": scores, "curves": curves}, base_dir / f"{name}.pkl")
 

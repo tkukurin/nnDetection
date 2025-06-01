@@ -3,14 +3,13 @@ from typing import Dict, List, Sequence
 import numpy as np
 from loguru import logger
 
-from nndet.ptmodule import MODULE_REGISTRY
-from nndet.planning.experiment import PLANNER_REGISTRY, AbstractPlanner
-from nndet.planning.estimator import MemoryEstimatorDetection
-from nndet.planning.architecture.boxes import BoxC002
-from nndet.preprocessing.preprocessor import GenericPreprocessor
 from nndet.core.boxes.ops_np import box_size_np
+from nndet.planning.architecture.boxes import BoxC002
 from nndet.planning.architecture.boxes.utils import concatenate_property_boxes
-
+from nndet.planning.estimator import MemoryEstimatorDetection
+from nndet.planning.experiment import PLANNER_REGISTRY, AbstractPlanner
+from nndet.preprocessing.preprocessor import GenericPreprocessor
+from nndet.ptmodule import MODULE_REGISTRY
 
 
 @PLANNER_REGISTRY.register
@@ -31,7 +30,7 @@ class D3V001(AbstractPlanner):
             List: identifiers of created plans
         """
         identifiers = []
-        
+
         # create full resolution 3d plan
         mode = "3d"
         plan_3d = self.plan_base(mode=mode)
@@ -39,7 +38,7 @@ class D3V001(AbstractPlanner):
         plan_3d["dataloader_kwargs"] = {}
         plan_3d["data_identifier"] = self.get_data_identifier(mode=mode)
         plan_3d["postprocessing"] = self.determine_postprocessing(mode=mode)
-        
+
         plan_3d = self.plan_base_stage(
             plan_3d,
             model_name=model_name,
@@ -110,7 +109,7 @@ class D3V001(AbstractPlanner):
         """
         spacings = self.data_properties['all_spacings']
         sizes = self.data_properties['all_sizes']
-        
+
         target_spacing = self.determine_target_spacing(mode=mode)
         new_sizes = [np.array(i) / target_spacing * np.array(j) for i, j in zip(spacings, sizes)]
 

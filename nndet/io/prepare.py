@@ -15,18 +15,15 @@ limitations under the License.
 """
 
 import shutil
-import numpy as np
-import SimpleITK as sitk
-
 from pathlib import Path
 from typing import List, Sequence
 
+import numpy as np
+import SimpleITK as sitk
 from loguru import logger
 from sklearn.model_selection import train_test_split
 
-from nndet.io.paths import Pathlike
-from nndet.io.paths import get_case_ids_from_dir
-
+from nndet.io.paths import Pathlike, get_case_ids_from_dir
 
 __all__ = ["maybe_split_4d_nifti"]
 
@@ -53,7 +50,7 @@ def maybe_split_4d_nifti(source_file: Path, output_folder: Path):
         return
     elif dim == 4:
         imgs_splitted = split_4d_itk(img_itk)
-        
+
         for idx, img in enumerate(imgs_splitted):
             sitk.WriteImage(img, str(output_folder / (filename[:-7] + "_%04.0d.nii.gz" % idx)))
     else:

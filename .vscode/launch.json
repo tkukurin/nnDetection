@@ -1,0 +1,266 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    
+    // ==========================================
+    // CONFIGURATION SETTINGS - CHANGE HERE:
+    // ==========================================
+    // det_num_threads_normal: "2" (for regular training)
+    // det_num_threads_debug: "1" (for debugging deadlocks)
+    // 
+    // To adjust for your system:
+    // - High-end CPU (8+ cores): Use "4" or "6" for normal
+    // - Low-end CPU (4 cores): Use "2" for normal
+    // - Always use "1" for debug mode
+    // ==========================================
+    
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "nnDetection: DEBUG - Train without multiprocessing",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "args": ["000", "-o", "augment_cfg.multiprocessing=False", "-o", "exp.fold=0"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "1",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 1. Generate Example Data",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/utils.py",
+            "args": ["example", "--full"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 2. Preprocess/Plan (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/preprocess.py",
+            "args": ["000"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 3. Unpack Data (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/utils.py",
+            "args": ["unpack", "${workspaceFolder}/data/Task000D3_Example/preprocessed/D3V001_3d/imagesTr", "6"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 4. Train Fold 0 (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "args": ["000", "-o", "exp.fold=0"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 4. Train Fold 1 (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "args": ["000", "-o", "exp.fold=1"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 4. Train Fold 2 (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "args": ["000", "-o", "exp.fold=2"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 4. Train Fold 3 (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "args": ["000", "-o", "exp.fold=3"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 4. Train Fold 4 (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "args": ["000", "-o", "exp.fold=4"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 4. Train with Sweep (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "args": ["000", "--sweep"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 5. Consolidate Models (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/consolidate.py",
+            "args": ["000", "RetinaUNetV001_D3V001_3d", "--sweep_boxes"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: 6. Predict Test Set (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/predict.py",
+            "args": ["000", "RetinaUNetV001_D3V001_3d", "--fold", "-1"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: Evaluate Model (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "args": ["evaluate", "000", "RetinaUNetV001_D3V001_3d", "0", "--boxes", "--analyze_boxes"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "nnDetection: Sweep Parameters (Task 000)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/experiments/train.py",
+            "args": ["sweep", "000", "RetinaUNetV001_D3V001_3d", "0"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": ".",
+                "OMP_NUM_THREADS": "1",
+                "det_num_threads": "2",
+                "det_models": "${workspaceFolder}/models",
+                "det_data": "${workspaceFolder}/data",
+                "det_verbose": "1"
+            },
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

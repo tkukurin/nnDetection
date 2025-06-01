@@ -14,16 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from nndet.ptmodule.retinaunet.base import RetinaUNetModule
-
-from nndet.core.boxes.matcher import ATSSMatcher
+from nndet.arch.conv import ConvGroupRelu, ConvInstanceRelu
 from nndet.arch.heads.classifier import BCECLassifier
-from nndet.arch.heads.regressor import GIoURegressor
 from nndet.arch.heads.comb import DetectionHeadHNMNative
+from nndet.arch.heads.regressor import GIoURegressor
 from nndet.arch.heads.segmenter import DiCESegmenterFgBg
-from nndet.arch.conv import ConvInstanceRelu, ConvGroupRelu
-
+from nndet.core.boxes.matcher import ATSSMatcher
 from nndet.ptmodule import MODULE_REGISTRY
+from nndet.ptmodule.retinaunet.base import RetinaUNetModule
 
 
 @MODULE_REGISTRY.register

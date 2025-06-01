@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import os
 from functools import partial
 from pathlib import Path
-from typing import Sequence, Optional
+from typing import Optional, Sequence
 
 import torch
 from loguru import logger
@@ -103,10 +102,10 @@ def load_final_model(
 
 
 def load_all_models(
-    source_models: Path, 
-    cfg: dict, 
+    source_models: Path,
+    cfg: dict,
     plan: dict,
-    *args, 
+    *args,
     **kwargs,
     ):
     """

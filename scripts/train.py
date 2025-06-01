@@ -14,44 +14,47 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import os
-import sys
-import socket
 import argparse
 import importlib
-from pathlib import Path
+import os
+import socket
+import sys
 from datetime import datetime
+from pathlib import Path
 from typing import List
 
-import torch
-import pytorch_lightning as pl
-from pytorch_lightning.loggers import MLFlowLogger
-from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
-
-from loguru import logger
-from hydra import initialize_config_module
-from omegaconf.omegaconf import OmegaConf
-
 import nndet
-from nndet.utils.config import compose, load_dataset_info
-from nndet.utils.info import log_git, write_requirements_to_file, \
-    create_debug_plan, flatten_mapping
-from nndet.utils.check import env_guard
-from nndet.utils.analysis import run_analysis_suite
-from nndet.io.datamodule.bg_module import Datamodule
-from nndet.io.paths import get_task, get_training_dir
-from nndet.io.load import load_pickle, save_json, save_pickle
-from nndet.evaluator.registry import save_metric_output, evaluate_box_dir, \
-    evaluate_case_dir, evaluate_seg_dir
+import pytorch_lightning as pl
+import torch
+from hydra import initialize_config_module
+from loguru import logger
+from nndet.evaluator.registry import (
+    evaluate_box_dir,
+    evaluate_case_dir,
+    evaluate_seg_dir,
+    save_metric_output,
+)
 from nndet.inference.ensembler.base import extract_results
+from nndet.io.datamodule.bg_module import Datamodule
+from nndet.io.load import load_pickle, save_json, save_pickle
+from nndet.io.paths import get_task, get_training_dir
 from nndet.ptmodule import MODULE_REGISTRY
+from nndet.utils.analysis import run_analysis_suite
+from nndet.utils.check import env_guard
+from nndet.utils.config import compose, load_dataset_info
+from nndet.utils.info import (
+    create_debug_plan,
+    flatten_mapping,
+    log_git,
+    write_requirements_to_file,
+)
+from omegaconf.omegaconf import OmegaConf
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.loggers import MLFlowLogger
 
 
 @env_guard
 def train():
-    """
-    Training entry
-    """
     parser = argparse.ArgumentParser()
     parser.add_argument('task', type=str,
                         help="Task id e.g. Task12_LIDC OR 12 OR LIDC")
@@ -98,7 +101,7 @@ def sweep():
 
 
 @env_guard
-def evaluate(): 
+def evaluate():
     """
     Evaluation entry
 
@@ -124,13 +127,13 @@ def evaluate():
     task = args.task
     test = args.test
 
-    do_boxes_eval = args.boxes    
+    do_boxes_eval = args.boxes
     do_case_eval = args.case
     do_seg_eval = args.seg
     do_instances_eval = args.instances
 
     do_analyze_boxes = args.analyze_boxes
-    
+
     _evaluate(
         task=task,
         model=model,
@@ -268,23 +271,19 @@ def _train(
     logger.info(f"Using {plugins} plugins for training")
 
     trainer = pl.Trainer(
-        gpus=list(range(num_gpus)) if num_gpus > 1 else num_gpus,
-        accelerator=cfg["trainer_cfg"]["accelerator"],
+        devices=list(range(num_gpus)) if num_gpus > 1 else num_gpus,
+        # accelerator=cfg["trainer_cfg"]["accelerator"],
+        # deterministic=cfg["trainer_cfg"]["deterministic"],
         precision=cfg["trainer_cfg"]["precision"],
-        amp_backend=cfg["trainer_cfg"]["amp_backend"],
-        amp_level=cfg["trainer_cfg"]["amp_level"],
         benchmark=cfg["trainer_cfg"]["benchmark"],
-        deterministic=cfg["trainer_cfg"]["deterministic"],
         callbacks=callbacks,
         logger=pl_logger,
         max_epochs=module.max_epochs,
-        progress_bar_refresh_rate=None if bool(int(os.getenv("det_verbose", 1))) else 0,
-        reload_dataloaders_every_epoch=False,
+        enable_progress_bar=bool(int(os.getenv("det_verbose", 1))),
+        reload_dataloaders_every_n_epochs=0,
         num_sanity_val_steps=10,
-        weights_summary='full',
+        enable_model_summary=True,
         plugins=plugins,
-        terminate_on_nan=True,  # TODO: make modular
-        move_metrics_to_cpu=False,
         **trainer_kwargs
     )
     trainer.fit(module, datamodule=datamodule)
@@ -306,7 +305,7 @@ def _train(
         save_pickle(plan, train_dir / "plan_inference.pkl")
 
         ensembler_cls = module.get_ensembler_cls(
-            key="boxes", dim=plan["network_dim"]) # TODO: make this configurable    
+            key="boxes", dim=plan["network_dim"]) # TODO: make this configurable
         for restore in [True, False]:
             target_dir = train_dir / "val_predictions" if restore else \
                 train_dir / "val_predictions_preprocessed"
@@ -341,7 +340,7 @@ def _sweep(
             e.g. RetinaUNetV001_D3V001_3d
         fold: current fold
     """
-    nndet_data_dir = Path(os.getenv("det_models"))
+    nndet_data_dir = Path(os.getenv("det_data"))
     task = get_task(task, name=True, models=True)
     train_dir = nndet_data_dir / task / model / f"fold{fold}"
 
@@ -381,7 +380,7 @@ def _sweep(
     save_pickle(plan, train_dir / "plan_inference.pkl")
 
     ensembler_cls = module.get_ensembler_cls(
-        key="boxes", dim=plan["network_dim"]) # TODO: make this configurable    
+        key="boxes", dim=plan["network_dim"]) # TODO: make this configurable
     for restore in [True, False]:
         target_dir = train_dir / "val_predictions" if restore else \
             train_dir / "val_predictions_preprocessed"
@@ -466,9 +465,9 @@ def _evaluate(
         if do_case_eval:
             logger.info(f"Computing case metrics: restore {restore}")
             scores, curves = evaluate_case_dir(
-                pred_dir=pred_dir, 
-                gt_dir=gt_dir, 
-                classes=list(data_cfg["labels"].keys()), 
+                pred_dir=pred_dir,
+                gt_dir=gt_dir,
+                classes=list(data_cfg["labels"].keys()),
                 target_class=data_cfg["target_class"],
                 )
             save_metric_output(scores, curves, save_dir, "results_case")
@@ -495,3 +494,4 @@ def _evaluate(
 
 if __name__ == "__main__":
     train()
+    #evaluate()

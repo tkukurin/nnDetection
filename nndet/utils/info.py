@@ -14,27 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import os
-import sys
 import copy
-import pathlib
-import warnings
-import functools
-
-from collections.abc import MutableMapping
-from subprocess import PIPE, run
-from omegaconf.omegaconf import OmegaConf
-
-from tqdm import tqdm
-from typing import Mapping, Sequence, Union, Callable, Any, Iterable
-from loguru import logger
-from contextlib import contextmanager
-from typing import Union, Optional
-from pathlib import Path
-from git import Repo, InvalidGitRepositoryError
-
 import functools
 import inspect
+import os
+import pathlib
+import sys
+from collections.abc import MutableMapping
+from contextlib import contextmanager
+from pathlib import Path
+from subprocess import PIPE, run
+from typing import Any, Callable, Iterable, Mapping, Optional, Union
+
+from git import InvalidGitRepositoryError, Repo
+from loguru import logger
+from tqdm import tqdm
+
 
 class SuppressPrint:
     def __enter__(self):
@@ -93,7 +88,7 @@ def experimental(func):
             func_name = func.__class__.__name__
         else:
             func_name = func.__qualname__
-        
+
         logger.warning(f"This feature ({func_name}) is experimental! "
                        "It might not implement all features or is only a simplification!")
         return func(*args, **kwargs)

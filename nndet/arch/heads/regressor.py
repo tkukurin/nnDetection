@@ -14,20 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from abc import abstractmethod
+from typing import Optional, TypeVar
+
 import torch
 import torch.nn as nn
-
-from typing import Optional, Tuple, Callable, TypeVar
-from abc import abstractmethod
-
 from loguru import logger
-
-from nndet.core.boxes import box_iou
-from nndet.arch.layers.scale import Scale
 from torch import Tensor
 
-from nndet.losses import SmoothL1Loss, GIoULoss
-
+from nndet.arch.layers.scale import Scale
+from nndet.losses import GIoULoss, SmoothL1Loss
 
 CONV_TYPES = (nn.Conv2d, nn.Conv3d)
 

@@ -21,25 +21,26 @@ this scriptish functions to run it in my default pipeline
 """
 
 import pickle
+from collections import defaultdict
 from itertools import product
 from pathlib import Path
-from typing import Sequence, Optional, Tuple
-from collections import defaultdict
-from loguru import logger
+from typing import Optional, Sequence, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from loguru import logger
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
-import matplotlib.pyplot as plt
-plt.style.use('seaborn-deep')
+
+# plt.style.use('seaborn-deep')
+import SimpleITK as sitk
 from sklearn.metrics import confusion_matrix
 from torch import Tensor
-import SimpleITK as sitk
 
 from nndet.core.boxes import box_iou_np, box_size_np
 from nndet.io.load import load_pickle, save_json
-from nndet.utils.info import maybe_verbose_iterable, experimental, deprecate
+from nndet.utils.info import deprecate, experimental, maybe_verbose_iterable
 
 
 def collect_overview(prediction_dir: Path, gt_dir: Path,
@@ -48,7 +49,7 @@ def collect_overview(prediction_dir: Path, gt_dir: Path,
                      top_n: int = 10,
                      ):
     results = defaultdict(dict)
-    
+
     for f in prediction_dir.glob("*_boxes.pkl"):
         case_id = f.stem.rsplit('_', 1)[0]
 
@@ -256,7 +257,7 @@ def collect_boxes(prediction_dir: Path, gt_dir: Path, iou:float, score: float):
         gt_boxes = gt_data["boxes"]
         gt_classes = gt_data["classes"]
         gt_ignore = [np.zeros(gt_boxes_img.shape[0]).reshape(-1, 1) for gt_boxes_img in [gt_boxes]]
-        
+
         case_result = load_pickle(f)
         pred_boxes = case_result["pred_boxes"]
         pred_scores = case_result["pred_scores"]
@@ -353,7 +354,7 @@ def plot_sizes_bar(all_pred, all_target, all_boxes, iou, score,
     kwargs = {}
     if max_bin is not None:
         kwargs["binrange"] = [0, max_bin]
-    
+
     ax = sns.histplot(data=data, bins=100, element="step",
                       palette={"tp": "g", "fp": "r", "fn": "b"},
                       legend=True, fill=False, **kwargs
@@ -407,7 +408,7 @@ def run_analysis_suite(prediction_dir: Path, gt_dir: Path, save_dir: Path):
         with open(str(_save_dir / 'sizes_bar.pkl'), "wb") as fp:
             pickle.dump(sizes_fig, fp, protocol=4)
         plt.close()
-        
+
         sizes_fig, sizes_ax = plot_sizes_bar(all_pred, all_target, all_boxes,
                                              iou=iou, score=score, max_bin=100)
         plt.savefig(_save_dir / "sizes_bar_100.png")
@@ -437,7 +438,7 @@ def convert_box_to_nii_meta(pred_boxes: Tensor,
         instance_mask_itk.SetOrigin(props["itk_origin"])
         instance_mask_itk.SetDirection(props["itk_direction"])
         instance_mask_itk.SetSpacing(props["itk_spacing"])
-        
+
         prediction_meta = {idx: {"score": float(score), "label": int(label)}
             for idx, (score, label) in enumerate(zip(pred_scores, pred_labels), start=1)}
         return instance_mask_itk, prediction_meta

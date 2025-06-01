@@ -43,7 +43,7 @@ def nms_cpu(boxes, scores, thresh):
     """
     ious = box_iou(boxes, boxes)
     _, _idx = torch.sort(scores, descending=True)
-    
+
     keep = []
     while _idx.nelement() > 0:
         keep.append(_idx[0])
@@ -71,9 +71,11 @@ def nms(boxes: Tensor, scores: Tensor, iou_threshold: float):
         # prefer torchvision in 2d because they have c++ cpu version
         nms_fn = nms_2d
     else:
-        if boxes.is_cuda:
+        if boxes.is_cuda and nms_gpu is not None:
             nms_fn = nms_gpu
         else:
+            # Fallback to CPU implementation when GPU extensions are not available
+            logger.warning("Using CPU NMS fallback (GPU extensions not available or on CPU)")
             nms_fn = nms_cpu
     return nms_fn(boxes.float(), scores.float(), iou_threshold)
 

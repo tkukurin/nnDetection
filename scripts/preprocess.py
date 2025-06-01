@@ -15,32 +15,35 @@ limitations under the License.
 """
 
 import argparse
-import shutil
-import os
 import copy
+import os
+import shutil
 import sys
 import traceback
+from itertools import repeat
+from multiprocessing import Pool
+from pathlib import Path
+from typing import Dict, List, Sequence, Tuple
 
 import numpy as np
-
-from loguru import logger
-from itertools import repeat
-from typing import Dict, Sequence, Tuple, List
-from pathlib import Path
-from multiprocessing import Pool
 from hydra import initialize_config_module
-from omegaconf import OmegaConf
-
-from nndet.utils.config import compose
-from nndet.utils.check import env_guard
-from nndet.planning import DatasetAnalyzer
-from nndet.planning import PLANNER_REGISTRY
+from loguru import logger
+from nndet.io.load import load_npz_looped, load_pickle
+from nndet.io.paths import (
+    get_case_id_from_path,
+    get_paths_from_splitted_dir,
+)
+from nndet.planning import PLANNER_REGISTRY, DatasetAnalyzer
 from nndet.planning.experiment.utils import create_labels
 from nndet.planning.properties.registry import medical_instance_props
-from nndet.io.load import load_pickle, load_npz_looped
-from nndet.io.paths import get_paths_raw_to_split, get_paths_from_splitted_dir, subfiles, get_case_id_from_path
 from nndet.preprocessing import ImageCropper
-from nndet.utils.check import check_dataset_file, check_data_and_label_splitted
+from nndet.utils.check import (
+    check_data_and_label_splitted,
+    check_dataset_file,
+    env_guard,
+)
+from nndet.utils.config import compose
+from omegaconf import OmegaConf
 
 
 def run_cropping_and_convert(cropped_output_dir: Path,
@@ -270,15 +273,15 @@ def check_case(case_npz: Path,
             seg = case_dict["seg"]
             seg_instances = np.unique(seg)  # automatically sorted
             seg_instances = seg_instances[seg_instances > 0]
-            
+
             instances_properties = properties["instances"].keys()
             props_instances = np.sort(np.array(list(map(int, instances_properties))))
-            
+
             if (len(seg_instances) != len(props_instances)) or any(seg_instances != props_instances):
                 logger.warning(f"Inconsistent instances {case_npz} from "
                                 f"properties {props_instances} from seg {seg_instances}. "
                                 f"Very small instances can get lost in resampling "
-                                f"but larger instances should not disappear!")       
+                                f"but larger instances should not disappear!")
             for i in seg_instances:
                 if str(i) not in instances_properties:
                     raise RuntimeError(f"Found instance {seg_instances} in segmentation "

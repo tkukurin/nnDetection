@@ -15,20 +15,29 @@ limitations under the License.
 """
 
 from abc import abstractmethod
-from typing import Optional, Union, Callable
-
-from loguru import logger
+from typing import Callable, Optional, Union
 
 import torch
-from torch.optim.lr_scheduler import _LRScheduler
+from loguru import logger
 from pytorch_lightning.callbacks import StochasticWeightAveraging
-from pytorch_lightning.trainer.optimizers import _get_default_scheduler_config
 from pytorch_lightning.utilities import rank_zero_warn
+from torch.optim.lr_scheduler import _LRScheduler
 
 from nndet.training.learning_rate import CycleLinear
 
-
 _AVG_FN = Callable[[torch.Tensor, torch.Tensor, torch.LongTensor], torch.FloatTensor]
+
+
+def _get_default_scheduler_config():
+    """Default scheduler configuration for PyTorch Lightning compatibility."""
+    return {
+        "scheduler": None,
+        "interval": "epoch",
+        "frequency": 1,
+        "monitor": None,
+        "strict": True,
+        "name": None,
+    }
 
 
 class BaseSWA(StochasticWeightAveraging):
@@ -54,7 +63,7 @@ class BaseSWA(StochasticWeightAveraging):
         """
         super().__init__(
             swa_epoch_start=swa_epoch_start,
-            swa_lrs=None,
+            swa_lrs=0.01,  # Provide a default positive value (will be overridden by custom scheduler)
             annealing_epochs=10,
             annealing_strategy="cos",
             avg_fn=avg_fn,
@@ -79,7 +88,7 @@ class BaseSWA(StochasticWeightAveraging):
         """
         if trainer.current_epoch == self.swa_start:
             optimizer = trainer.optimizers[0]
-            
+
             # move average model to request device.
             self._average_model = self._average_model.to(self._device or pl_module.device)
 

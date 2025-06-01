@@ -21,10 +21,9 @@ from pathlib import Path
 
 from hydra import initialize_config_module
 from loguru import logger
-
 from nndet.io import get_task, load_json, save_json
-from nndet.utils.config import compose, load_dataset_info
 from nndet.utils.check import env_guard
+from nndet.utils.config import compose, load_dataset_info
 
 
 def convert_raw(task, overwrite, ov):

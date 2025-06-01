@@ -16,22 +16,23 @@ limitations under the License.
 
 from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Hashable, Union
+from typing import Any, Dict, Hashable, List, Optional, Sequence, Tuple, Union
 
-import torch
 import numpy as np
+import torch
+from loguru import logger
 from scipy.stats import norm
 from torch import Tensor
 
-from loguru import logger
-
+from nndet.core.boxes import box_center, clip_boxes_to_image, remove_small_boxes
+from nndet.inference.detection import (
+    batched_nms_model,
+    batched_wbc_ensemble,
+)
 from nndet.inference.detection.model import batched_weighted_nms_model
-from nndet.inference.detection import batched_nms_model, batched_nms_ensemble, \
-    batched_wbc_ensemble, wbc_nms_no_label_ensemble
 from nndet.inference.ensembler.base import BaseEnsembler, OverlapMap
 from nndet.inference.restore import restore_detection
-from nndet.core.boxes import box_center, clip_boxes_to_image, remove_small_boxes
-from nndet.utils.tensor import cat, to_device, to_dtype
+from nndet.utils.tensor import cat, to_device
 
 
 class BoxEnsembler(BaseEnsembler):
@@ -164,9 +165,9 @@ class BoxEnsembler(BaseEnsembler):
         }
 
     def postprocess_image(self,
-                          boxes: torch.Tensor, 
-                          probs: torch.Tensor, 
-                          labels: torch.Tensor, 
+                          boxes: torch.Tensor,
+                          probs: torch.Tensor,
+                          labels: torch.Tensor,
                           weights: torch.Tensor,
                           shape: Optional[Tuple[int]] = None
                           ) -> Tuple[torch.Tensor, torch.Tensor,
@@ -1156,7 +1157,7 @@ class BoxEnsemblerSelective(BoxEnsembler):
 
             if len(probs) > self.parameters["model_topk"]:
                 _, idx_sorted = probs.sort(descending=True)
-                idx_sorted = idx_sorted[:self.parameters["model_topk"]]            
+                idx_sorted = idx_sorted[:self.parameters["model_topk"]]
                 self.model_results[model]["boxes"] = boxes[idx_sorted]
                 self.model_results[model]["scores"] = probs[idx_sorted]
                 self.model_results[model]["labels"] = labels[idx_sorted]

@@ -10,11 +10,11 @@
 from typing import Callable, Tuple
 
 import torch
-from torch import Tensor
 from loguru import logger
+from torch import Tensor
 
-from nndet.core.boxes.ops import box_iou
 from nndet.core.boxes.matcher.base import Matcher
+from nndet.core.boxes.ops import box_iou
 
 
 class IoUMatcher(Matcher):

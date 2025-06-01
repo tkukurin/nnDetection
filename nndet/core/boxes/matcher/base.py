@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2020 Division of Medical Image Computing, German Cancer Research Center (DKFZ), Heidelberg, Germany
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Sequence, Callable, Tuple, TypeVar
 from abc import ABC
+from typing import Callable, Sequence, Tuple, TypeVar
 
 import torch
 from torch import Tensor

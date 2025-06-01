@@ -7,14 +7,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Sequence, Callable, Tuple
+from typing import Callable, Sequence, Tuple
 
 import torch
-from torch import Tensor
 from loguru import logger
+from torch import Tensor
 
-from nndet.core.boxes.ops import box_iou, box_center_dist, center_in_boxes
 from nndet.core.boxes.matcher.base import Matcher
+from nndet.core.boxes.ops import box_center_dist, box_iou, center_in_boxes
 
 INF = 100  # not really inv but here it is sufficient
 

@@ -3,22 +3,21 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Parts of this code are from torchvision (https://github.com/pytorch/vision) licensed under
-# SPDX-FileCopyrightText: 2016 Soumith Chintala 
+# SPDX-FileCopyrightText: 2016 Soumith Chintala
 # SPDX-License-Identifier: BSD-3-Clause
 
 
-import torch
-import torch.nn as nn
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+import torch
 from torch import Tensor
-from typing import List, Tuple, Dict, Any, Optional, Union
 
 from nndet.arch.abstract import AbstractModel
-from nndet.core import boxes as box_utils
-from nndet.arch.encoder.abstract import EncoderType
 from nndet.arch.decoder.base import DecoderType
-from nndet.arch.heads.segmenter import SegmenterType
+from nndet.arch.encoder.abstract import EncoderType
 from nndet.arch.heads.comb import HeadType
+from nndet.arch.heads.segmenter import SegmenterType
+from nndet.core import boxes as box_utils
 from nndet.core.boxes.anchors import AnchorGeneratorType
 
 
@@ -330,8 +329,8 @@ class BaseRetinaNet(AbstractModel):
         return all_boxes, all_probs, all_labels
 
     def postprocess_detections_single_image(
-        self, 
-        boxes: Tensor, 
+        self,
+        boxes: Tensor,
         probs: Tensor,
         image_shape: Tuple[int],
         ) -> Tuple[Tensor, Tensor, Tensor]:
@@ -373,7 +372,7 @@ class BaseRetinaNet(AbstractModel):
             boxes, probs, labels = boxes[keep], probs[keep], labels[keep]
 
         keep = box_utils.batched_nms(boxes, probs, labels, self.nms_thresh)
-        
+
         if self.detections_per_img is not None:
             keep = keep[:self.detections_per_img]
         return boxes[keep], probs[keep], labels[keep]

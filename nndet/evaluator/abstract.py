@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from abc import abstractmethod, ABC
-
-import numpy as np
+from abc import ABC, abstractmethod
 from typing import Dict, List, Sequence
 
+import numpy as np
 
 __all__ = ["AbstractEvaluator", "AbstractMetric", "DetectionMetric"]
 
@@ -95,7 +94,7 @@ class DetectionMetric(AbstractMetric):
             Sequence[float]: IoU thresholds; [M], M is the number of thresholds
         """
         raise NotImplementedError
-    
+
     def check_number_of_iou(self, *args) -> None:
         """
         Check if shape of input in first dimension is consistent with expected IoU values

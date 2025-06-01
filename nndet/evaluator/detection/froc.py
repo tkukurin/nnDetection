@@ -15,20 +15,17 @@ limitations under the License.
 """
 
 import time
-import numpy as np
-
-from loguru import logger
-from typing import Sequence, List, Dict, Optional, Union, Tuple
+from collections import defaultdict
 from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import matplotlib.pyplot as plt
+import numpy as np
+from loguru import logger
 from matplotlib.ticker import FuncFormatter
+from sklearn.metrics import roc_curve
 
 from nndet.evaluator import DetectionMetric
-from sklearn.metrics import roc_curve
-from collections import defaultdict
-
-from nndet.utils.info import experimental
 
 
 class FROCMetric(DetectionMetric):
@@ -169,9 +166,9 @@ class FROCMetric(DetectionMetric):
         dt_ignores = np.concatenate([r['dtIgnore'] for r in results], axis=1)
         dt_scores = np.concatenate([r['dtScores'] for r in results])
         gt_ignore = np.concatenate([r['gtIgnore'] for r in results])
-        
+
         self.check_number_of_iou(dt_matches, dt_ignores)
-        
+
         num_gt = np.count_nonzero(gt_ignore == 0)  # number of ground truth boxes (non ignored)
         if num_gt == 0:
             logger.error("No ground truth found! Returning 0 in FROC.")
@@ -181,16 +178,16 @@ class FROCMetric(DetectionMetric):
         # keep shape in case of 1 threshold
         old_shape = dt_matches.shape
         dt_matches = dt_matches[np.logical_not(dt_ignores)].reshape(old_shape)
-        
+
         curves = {}
         for iou_idx, iou_val in enumerate(self.iou_thresholds):
             # filter scores with ignores detections
             _scores = dt_scores[np.logical_not(dt_ignores[iou_idx])]
             assert len(_scores) == len(dt_matches[iou_idx])
-            
+
             _fps, _sens, _th = (self.compute_froc_curve_one_iou(
                 dt_matches[iou_idx], _scores, num_images, num_gt))
-            
+
             # interpolate at defined fpr thresholds
             curves[iou_val] = np.interp(self.fpi_thresholds, _fps, _sens)
 
@@ -325,7 +322,7 @@ def get_froc_ax(fpi_values: Optional[Sequence[float]] = None) -> Tuple[plt.Figur
     """
     fig, ax = plt.subplots()
     ax.set_xscale("log", base=2)
-    
+
     if fpi_values is not None:
         ax.set_xlim(min(fpi_values), max(fpi_values))
         ax.set_xticks(fpi_values)

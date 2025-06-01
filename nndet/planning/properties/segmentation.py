@@ -15,17 +15,17 @@ limitations under the License.
 """
 
 import pickle
-import numpy as np
-
-from loguru import logger
-from itertools import repeat
 from collections import OrderedDict
-from skimage.morphology import label
+from itertools import repeat
 from multiprocessing import Pool
-from typing import Dict, List, Sequence, Tuple, Callable
+from typing import Callable, Dict, Sequence, Tuple
 
-from nndet.planning.analyzer import DatasetAnalyzer
+import numpy as np
+from loguru import logger
+from skimage.morphology import label
+
 from nndet.io.load import load_case_cropped
+from nndet.planning.analyzer import DatasetAnalyzer
 
 
 def analyze_segmentations(analyzer: DatasetAnalyzer) -> dict:
@@ -97,7 +97,7 @@ def analyze_segmentation_per_case(analyzer: DatasetAnalyzer, case_id: str,
 
 def run_analyze_segmentation(
     analyzer: DatasetAnalyzer, all_classes: Sequence[int],
-    save: bool = True, 
+    save: bool = True,
     analyze_fn: Callable[[DatasetAnalyzer, str, Sequence[int]], Dict] = analyze_segmentation_per_case) \
         -> Dict[str, Dict]:
     """
@@ -122,7 +122,7 @@ def run_analyze_segmentation(
         props = [analyze_fn(*args) for args in zip(
             repeat(analyzer), analyzer.case_ids, repeat(all_classes))]
     else:
-        with Pool(analyzer.num_processes) as p:        
+        with Pool(analyzer.num_processes) as p:
                 props = p.starmap(analyze_fn, zip(
                     repeat(analyzer), analyzer.case_ids, repeat(all_classes)))
 
@@ -180,7 +180,7 @@ def collect_class_and_region_sizes(seg: np.ndarray, all_classes: Sequence[int],
     region_volume_per_class = OrderedDict()
     for c in all_classes:
         volume_per_class[c] = np.sum(seg == c) * vol_per_voxel
-        
+
         region_volume_per_class[c] = []
         labelmap, numregions = label(seg == c, return_num=True)
         for l in range(1, numregions + 1):

@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from typing import List, Tuple, Union
+
 import torch
 import torch.nn.functional as F
-
-from typing import Union, Tuple, List
 from torch import Tensor
-
 
 __all__ = ["InterpolateToShapes", "InterpolateToShape", "Interpolate"]
 
@@ -45,7 +44,7 @@ class InterpolateToShapes(torch.nn.Module):
         super().__init__()
         self.mode = mode
         self.align_corners = align_corners
-    
+
     def forward(self, preds: List[Tensor], target: Tensor) -> List[Tensor]:
         """
         Interpolate target to match shape with predictions
@@ -58,7 +57,7 @@ class InterpolateToShapes(torch.nn.Module):
             List[Tensor]: interpolated targets
         """
         shapes = [tuple(pred.shape)[2:] for pred in preds]
-        
+
         squeeze_result = False
         if target.ndim == preds[0].ndim - 1:
             target = target.unsqueeze(dim=1)
@@ -67,7 +66,7 @@ class InterpolateToShapes(torch.nn.Module):
         new_targets = [F.interpolate(
             target, size=shape, mode=self.mode, align_corners=self.align_corners)
                        for shape in shapes]
-        
+
         if squeeze_result:
             new_targets = [nt.squeeze(dim=1) for nt in new_targets]
 
@@ -164,7 +163,7 @@ class Interpolate(torch.nn.Module):
         self.scale_factor = scale_factor
         self.mode = mode
         self.align_corners = align_corners
-    
+
     def forward(self, x: Tensor) -> Tensor:
         """
         Interpolate input batch

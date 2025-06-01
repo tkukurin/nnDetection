@@ -15,16 +15,16 @@ limitations under the License.
 """
 
 import pickle
-import numpy as np
-
-from loguru import logger
+from collections import OrderedDict
 from itertools import repeat
 from multiprocessing import Pool
-from collections import OrderedDict
-from typing import Union, Sequence, Dict
+from typing import Dict, Sequence, Union
 
-from nndet.planning.analyzer import DatasetAnalyzer
+import numpy as np
+from loguru import logger
+
 from nndet.io.load import load_case_cropped
+from nndet.planning.analyzer import DatasetAnalyzer
 
 
 def get_modalities(analyzer: DatasetAnalyzer) -> dict:
@@ -56,7 +56,7 @@ def analyze_intensities(analyzer: DatasetAnalyzer) -> dict:
             `intensity_properties`: result of :func:`run_collect_intensity_properties`
     """
     num_modalities = len(analyzer.data_info["modalities"].keys())
-    
+
     if analyzer.overwrite or not analyzer.intensity_properties_file.is_file():
         results = run_collect_intensity_properties(analyzer, num_modalities)
     else:
@@ -80,7 +80,7 @@ def run_collect_intensity_properties(analyzer: DatasetAnalyzer,
             Evaluated statistics: `median`; `mean`; `std`; `min`; `max`; `percentile_99_5`; `percentile_00_5`
             `local_props`: contains a dict (with case ids) where statistics where computed per case
     """
-    
+
     results = OrderedDict()
     for mod_id in range(num_modalities):
         logger.info(f"Processing intensity values of modality {mod_id}")

@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json
 import importlib
+import json
 from pathlib import Path
 
 import yaml
-from omegaconf import OmegaConf
 from hydra import compose as hydra_compose
+from omegaconf import OmegaConf
 
 from nndet.io.paths import Pathlike, get_task
 

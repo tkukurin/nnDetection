@@ -1,7 +1,7 @@
-from typing import Sequence, List, Union, Tuple
+from typing import List, Sequence, Tuple, Union
 
-import torch
 import numpy as np
+import torch
 from torch import Tensor
 
 from nndet.core.boxes import box_center
@@ -41,7 +41,7 @@ def proxy_num_boxes_in_patch(boxes: Tensor, patch_size: Sequence[int]) -> Tensor
     Returns:
         Tensor: count of boxes which center point is in the range of patch_size / 2
     """
-    patch_size = torch.tensor(patch_size, dtype=torch.float)[None, None] / 2 # [1, 1, dims]    
+    patch_size = torch.tensor(patch_size, dtype=torch.float)[None, None] / 2 # [1, 1, dims]
 
     center = box_center(boxes)  # [N, dims]
     center_dists = (center[None] - center[:, None]).abs()  # [N, N, dims]
@@ -145,7 +145,7 @@ def proxy_num_boxes_in_patch(boxes: Tensor, patch_size: Sequence[int]) -> Tensor
     Returns:
         Tensor: count of boxes which center point is in the range of patch_size / 2
     """
-    patch_size = torch.tensor(patch_size, dtype=torch.float)[None, None] / 2 # [1, 1, dims]    
+    patch_size = torch.tensor(patch_size, dtype=torch.float)[None, None] / 2 # [1, 1, dims]
 
     center = box_center(boxes)  # [N, dims]
     center_dists = (center[None] - center[:, None]).abs()  # [N, N, dims]

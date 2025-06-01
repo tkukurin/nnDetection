@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from abc import abstractmethod
+from typing import Callable, Sequence, Tuple, Union
+
 import torch
 import torch.nn as nn
 
-from abc import abstractmethod
-from typing import Sequence, Callable, Union, Tuple
-
-from nndet.arch.conv import NdParam
 from nndet.arch.blocks.res import ResBasic
+from nndet.arch.conv import NdParam
 
 
 class AbstractBlock(nn.Module):
@@ -85,7 +85,7 @@ class StackedBlock(AbstractBlock):
         if out_channels is None:
             out_channels = in_channels * self.expansion
         if max_out_channels is not None and out_channels > max_out_channels:
-            out_channels = max_out_channels 
+            out_channels = max_out_channels
         if stride is None:
             stride = 1
 
@@ -248,7 +248,7 @@ class StackedConvBlock(AbstractBlock):
         if out_channels is None:
             out_channels = in_channels * self.expansion
         if max_out_channels is not None and out_channels > max_out_channels:
-            out_channels = max_out_channels 
+            out_channels = max_out_channels
         if stride is None:
             stride = 1
 

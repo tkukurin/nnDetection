@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import numpy as np
-from typing import Dict, Sequence, Tuple
 from collections import defaultdict
+from typing import Dict, Sequence, Tuple
+
+import numpy as np
 
 from nndet.evaluator import AbstractEvaluator
-
 
 __all__ = ["SegmentationEvaluator"]
 
@@ -180,13 +180,13 @@ class PerCaseSegmentationEvaluator(AbstractEvaluator):
         dice_full = np.concatenate(self.results, axis=0)
         dice_per_class = dice_full.mean(axies=0) # C
         dice = dice_full.mean() # 1
-        
+
         results = {}
         for cls_idx, value in enumerate(dice_per_class):
             results[f"dice_cls_{cls_idx}"] = float(value)
         results["dice"] = float(dice)
         return results, None
-    
+
     @classmethod
     def create(cls,
                classes: Sequence[str],

@@ -1,38 +1,38 @@
 import os
-from pathlib import Path
 from abc import abstractmethod
-from typing import Type, Dict, Sequence, List, Callable, Tuple
+from pathlib import Path
+from typing import Callable, Dict, List, Sequence, Tuple, Type
 
-import torch
 import numpy as np
-from tqdm import tqdm
+import torch
 from loguru import logger
 from torchvision.models.detection.rpn import AnchorGenerator
+from tqdm import tqdm
 
 from nndet.utils.info import SuppressPrint
 
 with SuppressPrint():
     from nnunet.experiment_planning.common_utils import get_pool_and_conv_props
 
-from nndet.io.load import load_pickle
 from nndet.arch.abstract import AbstractModel
-from nndet.planning.estimator import MemoryEstimator, MemoryEstimatorDetection
-from nndet.planning.architecture.abstract import ArchitecturePlanner
 from nndet.core.boxes import (
-    get_anchor_generator,
-    expand_to_boxes,
-    box_center,
-    box_size,
-    compute_anchors_for_strides,
-    box_iou,
-    box_size_np,
     box_area_np,
+    box_center,
+    box_iou,
+    box_size,
+    box_size_np,
+    compute_anchors_for_strides,
+    expand_to_boxes,
+    get_anchor_generator,
     permute_boxes,
-    )
+)
+from nndet.io.load import load_pickle
+from nndet.planning.architecture.abstract import ArchitecturePlanner
 from nndet.planning.architecture.boxes.utils import (
     fixed_anchor_init,
     scale_with_abs_strides,
-    )
+)
+from nndet.planning.estimator import MemoryEstimator, MemoryEstimatorDetection
 
 
 class BaseBoxesPlanner(ArchitecturePlanner):
@@ -53,7 +53,7 @@ class BaseBoxesPlanner(ArchitecturePlanner):
 
         self.preprocessed_output_dir = Path(preprocessed_output_dir)
         self.save_dir = Path(save_dir)
-        self.save_dir.mkdir(parents=True, exist_ok=True)        
+        self.save_dir.mkdir(parents=True, exist_ok=True)
 
         self.network_cls = network_cls
         self.estimator = estimator
@@ -163,7 +163,7 @@ class BaseBoxesPlanner(ArchitecturePlanner):
                 num_instances.append(item)
                 classes.append(str(key))
             ind = np.arange(len(num_instances))
-            
+
             plt.bar(ind, num_instances)
             plt.xlabel("Classes")
             plt.ylabel("Num Instances")
@@ -184,7 +184,7 @@ class BaseBoxesPlanner(ArchitecturePlanner):
             plt.hist(num_instances_per_case, bins=100, range=(0, 100))
             plt.savefig(self.save_dir / f'instances_per_case.png')
             plt.close()
-            
+
             plt.hist(num_instances_per_case, bins=30, range=(0, 30))
             plt.savefig(self.save_dir / f'instances_per_case_0_30.png')
             plt.close()
@@ -353,7 +353,7 @@ class BoxC001(BaseBoxesPlanner):
             target_spacing_transposed=target_spacing_transposed,
             median_shape_transposed=median_shape_transposed,
             transpose_forward=transpose_forward,
-        )        
+        )
 
         plan = {"patch_size": patch_size,
                 "batch_size": self.batch_size,
@@ -421,7 +421,7 @@ class BoxC001(BaseBoxesPlanner):
             mask = mask * ax_mask
         return boxes_np[mask.astype(bool)]
 
-    def find_anchors(self, 
+    def find_anchors(self,
                      boxes_torch: torch.Tensor,
                      strides: Sequence[Sequence[int]],
                      anchor_generator: AnchorGenerator,
@@ -527,7 +527,7 @@ class BoxC001(BaseBoxesPlanner):
                     patch_size, target_median_shape_transposed, pooling, must_be_divisible_by)
             num_pool_per_axis, pooling, convs, patch_size, must_be_divisible_by = \
                 self.plan_pool_and_conv_pool_late(patch_size, target_spacing_transposed)
-            self.architecture_kwargs["conv_kernels"] = convs 
+            self.architecture_kwargs["conv_kernels"] = convs
             self.architecture_kwargs["strides"] = pooling
             num_resolutions = len(self.architecture_kwargs["conv_kernels"])
 

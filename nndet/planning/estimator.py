@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import torch
-import gc
-import subprocess as sp
-import math
 import copy
-
+import gc
+import math
+import subprocess as sp
 from abc import ABC, abstractmethod
-from functools import partial, reduce
-from typing import Sequence, Union, Callable, Tuple
 from contextlib import contextmanager
+from functools import partial, reduce
+from typing import Callable, Sequence, Tuple, Union
+
+import torch
 from loguru import logger
 
 from nndet.arch.abstract import AbstractModel
@@ -86,7 +86,7 @@ class MemoryEstimatorDetection(MemoryEstimator):
             self.context = CUDA_CONTEXT[context]
         else:
             self.context = context
-        
+
         self.offset = offset
         self.block_mem_tensor = None
 
@@ -282,7 +282,7 @@ class Tracemalloc():
     def __init__(self, measure_fn):
         super().__init__()
         self.measure_fn = measure_fn
-    
+
     def __enter__(self):
         self.begin = self.measure_fn()
         return self

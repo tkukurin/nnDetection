@@ -14,22 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import copy
-import os
 import argparse
+import copy
 import sys
-
 from pathlib import Path
 
-from loguru import logger
-from omegaconf import OmegaConf
 from hydra import initialize_config_module
-
-from nnunet.paths import nnUNet_raw_data
-
+from loguru import logger
 from nndet.io import get_task
 from nndet.utils.config import compose
 from nndet.utils.nnunet import Exporter
+from nnunet.paths import nnUNet_raw_data
+from omegaconf import OmegaConf
 
 
 def run(cfg, target_dir, stuff: bool):

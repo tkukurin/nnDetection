@@ -14,23 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import importlib
 import argparse
+import importlib
 import os
 import sys
-from typing import Any, Mapping, Type, TypeVar
-
-from omegaconf import OmegaConf
-from loguru import logger
 from pathlib import Path
+from typing import Any, Mapping
 
-from nndet.utils.check import env_guard
-from nndet.planning import PLANNER_REGISTRY
+from loguru import logger
+from nndet.inference.helper import predict_dir
+from nndet.inference.loading import load_all_models
 from nndet.io import get_task, get_training_dir
 from nndet.io.load import load_pickle
-from nndet.inference.loading import load_all_models
-from nndet.inference.helper import predict_dir
-from nndet.utils.check import check_data_and_label_splitted
+from nndet.planning import PLANNER_REGISTRY
+from nndet.utils.check import check_data_and_label_splitted, env_guard
+from omegaconf import OmegaConf
 
 
 def run(cfg: dict,
@@ -175,7 +173,7 @@ def main():
     parser.add_argument('--check',
                     help="Run check of the test data before predicting",
                     action='store_true',
-                    )   
+                    )
     parser.add_argument('-npp', '--num_processes_preprocessing',
                         type=int, default=3, required=False,
                         help="Number of processes to use for resampling.",

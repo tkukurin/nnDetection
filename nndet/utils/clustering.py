@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import numpy as np
+from typing import Dict, Optional, Sequence, Tuple, Union
 
+import numpy as np
 from scipy.ndimage import label
-from typing import Dict, Sequence, Union, Tuple, Optional
 
 from nndet.io.transforms.instances import get_bbox_np
 
@@ -39,7 +39,7 @@ def seg_to_instances(
         Dict[int, int]: mapping from instances to classes
     """
     structure = np.ones([3] * seg.ndim)
-    
+
     unique_classes = np.unique(seg)
     unique_classes = unique_classes[unique_classes > 0]
 
@@ -56,7 +56,7 @@ def seg_to_instances(
 
         for iid in instance_ids:
             instance_binary_mask = instances_temp == iid
-            
+
             if min_num_voxel > 0:
                 if instance_binary_mask.sum() < min_num_voxel:  # remove small instances
                     continue
@@ -98,7 +98,7 @@ def seg_to_instances_voted(
     i = 1
     for iid in instance_ids:
         instance_binary_mask = instances_temp == iid
-        
+
         if min_num_voxel > 0:
             if instance_binary_mask.sum() < min_num_voxel:  # remove small instances
                 continue

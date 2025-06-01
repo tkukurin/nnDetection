@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from typing import Sequence, List
 from abc import ABC, abstractmethod
+from typing import List, Sequence
 
 import numpy as np
 
@@ -52,7 +52,7 @@ def get_patch_size(
     rot_y = min(90 / 360 * 2. * np.pi, rot_y)
     rot_z = min(90 / 360 * 2. * np.pi, rot_z)
 
-    from batchgenerators.augmentations.utils import rotate_coords_3d, rotate_coords_2d
+    from batchgenerators.augmentations.utils import rotate_coords_2d, rotate_coords_3d
     coords = np.array(patch_size)
     final_shape = np.copy(coords)
     if len(coords) == 3:
@@ -66,7 +66,7 @@ def get_patch_size(
 
 
 class AugmentationSetup(ABC):
-    def __init__(self, 
+    def __init__(self,
                  patch_size: Sequence[int],
                  params: dict,
                  ) -> None:

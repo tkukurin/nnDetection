@@ -7,15 +7,15 @@
 # SPDX-License-Identifier: BSD-2-Clause-Views
 
 
-import numpy as np
-from typing import Callable, Sequence, List, Dict
+from typing import Callable, Dict, List, Sequence
 
+import numpy as np
 
 __all__ = ["matching_batch"]
 
 
 def matching_batch(
-    iou_fn: Callable[[np.ndarray, np.ndarray], np.ndarray], 
+    iou_fn: Callable[[np.ndarray, np.ndarray], np.ndarray],
     iou_thresholds: Sequence[float], pred_boxes: Sequence[np.ndarray],
     pred_classes: Sequence[np.ndarray], pred_scores: Sequence[np.ndarray],
     gt_boxes: Sequence[np.ndarray], gt_classes: Sequence[np.ndarray],

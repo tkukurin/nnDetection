@@ -14,14 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from typing import Sequence, Tuple, Union
+
 import torch
-
-from torch import Tensor
 from numpy import ndarray
-from typing import Union, Sequence, Tuple
-
-
-from torch.cuda.amp import autocast
+from torch import Tensor
+from torch.amp import autocast
 
 
 def box_area_3d(boxes: Tensor) -> Tensor:
@@ -71,7 +69,7 @@ def box_area(boxes: Union[Tensor, ndarray]) -> Union[Tensor, ndarray]:
         return box_area_3d(boxes)
 
 
-@autocast(enabled=False)
+@autocast(device_type='cuda', enabled=False)
 def box_iou(boxes1: Tensor, boxes2: Tensor,  eps: float = 0) -> Tensor:
     """
     Return intersection-over-union (Jaccard index) of boxes.
@@ -102,7 +100,7 @@ def box_iou(boxes1: Tensor, boxes2: Tensor,  eps: float = 0) -> Tensor:
         return box_iou_union_3d(boxes1.float(), boxes2.float(), eps=eps)[0]
 
 
-@autocast(enabled=False)
+@autocast(device_type='cuda', enabled=False)
 def generalized_box_iou(boxes1: Tensor, boxes2: Tensor, eps: float = 0) -> Tensor:
     """
     Generalized box iou

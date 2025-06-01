@@ -16,8 +16,8 @@ limitations under the License.
 
 from typing import Tuple
 
-from torch import Tensor
 import torch
+from torch import Tensor
 
 from nndet.core.boxes import batched_nms
 

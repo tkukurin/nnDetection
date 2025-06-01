@@ -14,13 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from typing import Any, Callable, Optional, Sequence, Tuple, Type, Union
+
 import torch
 import torch.nn as nn
-from typing import Union, Callable, Any, Optional, Tuple, Sequence, Type
 
-from nndet.arch.initializer import InitWeights_He
 from nndet.arch.layers.norm import GroupNorm
-
 
 NdParam = Union[int, Tuple[int, int], Tuple[int, int, int]]
 
@@ -194,7 +193,7 @@ class ConvInstanceRelu(BaseConvNormAct):
         """
         norm = "Instance" if add_norm else None
         act = "ReLU" if add_act else None
-        
+
         super().__init__(
             dim=dim,
             in_channels=in_channels,
@@ -270,7 +269,7 @@ class ConvGroupRelu(BaseConvNormAct):
         """
         norm = "Group" if add_norm else None
         act = "ReLU" if add_act else None
-        
+
         super().__init__(
             dim=dim,
             in_channels=in_channels,

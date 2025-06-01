@@ -14,19 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import torch
 import math
-import torch.nn as nn
-
-from typing import Optional, TypeVar
-from torch import Tensor
 from abc import abstractmethod
+from typing import Optional, TypeVar
+
+import torch
+import torch.nn as nn
 from loguru import logger
+from torch import Tensor
 
 from nndet.losses.classification import (
-    FocalLossWithLogits,
     BCEWithLogitsLossOneHot,
     CrossEntropyLoss,
+    FocalLossWithLogits,
 )
 
 CONV_TYPES = (nn.Conv2d, nn.Conv3d)
@@ -226,7 +226,7 @@ class BaseClassifier(Classifier):
                     torch.nn.init.constant_(layer.bias, bias_value)
         else:
             logger.info("Init classifier weights: conv default")
-  
+
 
 class BCECLassifier(BaseClassifier):
     def __init__(self,

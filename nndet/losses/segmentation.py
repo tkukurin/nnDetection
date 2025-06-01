@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from loguru import logger
+from typing import Callable
+
 import torch
 import torch.nn as nn
+from loguru import logger
 from torch import Tensor
-from typing import Callable
 
 
 def one_hot_smooth_batch(data, num_classes: int, smoothing: float = 0.0):
@@ -84,7 +85,7 @@ def get_tp_fp_fn(net_output, gt, axes=None, mask=None, square=False):
 class SoftDiceLoss(nn.Module):
     def __init__(self,
                  nonlin: Callable = None,
-                 batch_dice: bool = False, 
+                 batch_dice: bool = False,
                  do_bg: bool = False,
                  smooth_nom: float = 1e-5,
                  smooth_denom: float = 1e-5,

@@ -15,12 +15,11 @@ limitations under the License.
 """
 
 import math
-from typing import List, Union, Sequence
-
-from torch.optim.lr_scheduler import _LRScheduler
-from torch.optim.optimizer import Optimizer
+from typing import List, Sequence, Union
 
 from loguru import logger
+from torch.optim.lr_scheduler import _LRScheduler
+from torch.optim.optimizer import Optimizer
 
 
 def linear_warm_up(
@@ -45,7 +44,7 @@ def linear_warm_up(
     if iteration >= num_iterations:
         logger.warning(f"WarmUp was stepped too often, {iteration} "
                 f"but only {num_iterations} were expected!")
-    
+
     return initial_lr + (final_lr - initial_lr) * (float(iteration) / float(num_iterations))
 
 

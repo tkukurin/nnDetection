@@ -1,12 +1,11 @@
 import os
-from nndet.core.boxes.ops_np import box_size_np
-
-import numpy as np
-from pathlib import Path
-from loguru import logger
 from itertools import repeat
 from multiprocessing import Pool
+from pathlib import Path
 from typing import Dict
+
+import numpy as np
+from loguru import logger
 
 from nndet.io.itk import load_sitk_as_array
 from nndet.io.load import load_json, load_pickle
@@ -14,7 +13,7 @@ from nndet.io.paths import get_case_ids_from_dir
 from nndet.io.transforms.instances import (
     get_bbox_np,
     instances_to_segmentation_np,
-    )
+)
 
 
 def create_label_case(
@@ -37,7 +36,7 @@ def create_label_case(
     instances_save_path = target_dir / f"{case_id}_instances_gt.npz"
     boxes_save_path = target_dir / f"{case_id}_boxes_gt.npz"
     seg_save_path = target_dir / f"{case_id}_seg_gt.npz"
-    
+
     if instances_save_path.is_file() and boxes_save_path.is_file() and seg_save_path.is_file():
         logger.warning(f"Skipping prepare label {case_id} because it already exists")
     else:

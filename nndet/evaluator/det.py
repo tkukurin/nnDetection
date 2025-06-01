@@ -14,19 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pathlib import Path
 from functools import partial
-from typing import Optional, Sequence, Callable, Dict, List, Tuple
+from pathlib import Path
+from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from nndet.evaluator.abstract import AbstractEvaluator, DetectionMetric
-from nndet.evaluator.detection.matching import matching_batch
 from nndet.core.boxes import box_iou_np
+from nndet.evaluator.abstract import AbstractEvaluator, DetectionMetric
 from nndet.evaluator.detection.coco import COCOMetric
 from nndet.evaluator.detection.froc import FROCMetric
 from nndet.evaluator.detection.hist import PredictionHistogram
-
+from nndet.evaluator.detection.matching import matching_batch
 
 __all__ = ["DetectionEvaluator"]
 
@@ -121,12 +120,12 @@ class DetectionEvaluator(AbstractEvaluator):
         for metric_idx, metric in enumerate(self.metrics):
             _filter = partial(self.iou_filter, iou_idx=self.iou_mapping[metric_idx])
             iou_filtered_results = list(map(_filter, self.results_list))
-            
+
             score, curve = metric(iou_filtered_results)
-            
+
             if score is not None:
                 metric_scores.update(score)
-            
+
             if curve is not None:
                 metric_curves.update(curve)
         return metric_scores, metric_curves

@@ -14,24 +14,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import time
-import copy
 import collections
-import numpy as np
-
-import torch
-from torch.utils.data import DataLoader
-from loguru import logger
-from typing import Hashable, List, Sequence, Dict, Union, Any, Optional, Callable, TypeVar
+import time
 from pathlib import Path
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Hashable,
+    List,
+    Optional,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
-from nndet.io.load import save_pickle
+import numpy as np
+import torch
+from loguru import logger
+from torch.utils.data import DataLoader
+
 from nndet.arch.abstract import AbstractModel
+from nndet.io.load import save_pickle
+from nndet.io.patching import create_grid, save_get_crop
 from nndet.io.transforms import NoOp
 from nndet.io.transforms.base import AbstractTransform
-from nndet.io.patching import save_get_crop, create_grid
-from nndet.utils import to_device, maybe_verbose_iterable
-
+from nndet.utils import maybe_verbose_iterable, to_device
 
 torch_device = Union[torch.device, str]
 
@@ -41,7 +49,7 @@ class Predictor:
                  ensembler: Dict[str, Callable],
                  models: Sequence[AbstractModel],
                  crop_size: Sequence[int],
-                 overlap: float = 0.5, 
+                 overlap: float = 0.5,
                  tile_keys: Sequence[str] = ('data',),
                  model_keys: Sequence[str] = ('data',),
                  tta_transforms: Sequence[AbstractTransform] = (NoOp(),),
@@ -106,7 +114,7 @@ class Predictor:
         self.overlap = overlap
         self.tile_keys = tile_keys
         self.model_keys = model_keys
-        
+
         self.batch_size = batch_size
 
         if len(tta_transforms) != len(tta_inverse_transforms):
@@ -115,7 +123,7 @@ class Predictor:
         self.tta_inverse_transforms = tta_inverse_transforms
         self.post_transform = post_transform
         self.pre_transform = pre_transform
-        
+
         self.grid_mode = 'symmetric'
         self.save_get_mode = 'shift'
 

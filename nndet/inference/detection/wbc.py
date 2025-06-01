@@ -14,15 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import torch
-
-from torch import Tensor
 from typing import Tuple
 
-from torch._C import device
+import torch
+from torch import Tensor
 
-from nndet.core.boxes import box_iou, box_area
-
+from nndet.core.boxes import box_area, box_iou
 
 __all__ = ["batched_wbc", "wbc"]
 
@@ -231,7 +228,7 @@ def compute_cluster_consolidation2(
     scores = scores[topk_idx]
     n_missing_preds = torch.max(torch.tensor([0.], device=n_expected.device),
                             (n_expected - n_found).float())
-    
+
     # weigh predictions with high ious higher, penalty term for missing predictions
     consolidated_score = scores.mean() * (1 - missing_weight * n_missing_preds / n_expected)
     consolidated_boxes = (boxes * topk_weighted_scores.reshape(-1, 1)).sum(dim=0) / topk_weighted_scores.sum()

@@ -8,13 +8,11 @@
 
 from __future__ import division
 
-import math
 from typing import Sequence, TypeVar
 
 import torch
-from torch.jit.annotations import List, Tuple
 from torch import Tensor
-
+from torch.jit.annotations import List, Tuple
 from torchvision.models.detection._utils import BoxCoder
 
 
@@ -162,7 +160,7 @@ class BoxCoderND(BoxCoder):
     Compatible with 2d and 3d
     """
     def encode(self,
-               reference_boxes: List[Tensor], 
+               reference_boxes: List[Tensor],
                proposals: List[Tensor],
                ) -> Tuple[Tensor]:
         """

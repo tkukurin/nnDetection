@@ -6,13 +6,13 @@ import functools
 import os
 import warnings
 from pathlib import Path
-from typing import Dict, List, Sequence, Optional, Union
+from typing import Dict, List, Optional, Sequence, Union
 
 import numpy as np
 import SimpleITK as sitk
 
 from nndet.io import load_json, load_sitk
-from nndet.io.paths import get_task, get_paths_from_splitted_dir
+from nndet.io.paths import get_paths_from_splitted_dir, get_task
 from nndet.utils.config import load_dataset_info
 from nndet.utils.info import maybe_verbose_iterable
 
@@ -25,7 +25,7 @@ def env_guard(func):
     def wrapper(*args, **kwargs):
         # we use print here because logging might not be initialized yet and
         # this is intended as a user warning.
-        
+
         # det_data
         if os.environ.get("det_data", None) is None:
             raise RuntimeError(
@@ -67,7 +67,7 @@ def _check_key_missing(cfg: dict, key: str, ktype=None):
     if key not in cfg:
         raise ValueError(f"Dataset information did not contain "
                         f"'{key}' key, found {list(cfg.keys())}")
-    
+
     if ktype is not None:
         if not isinstance(cfg[key], ktype):
             raise ValueError(f"Found {key} of type {type(cfg[key])} in "

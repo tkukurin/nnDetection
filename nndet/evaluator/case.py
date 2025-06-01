@@ -15,16 +15,22 @@ limitations under the License.
 """
 
 from collections import defaultdict
-from typing import Dict, Sequence, Callable, Tuple, Union, Mapping, Optional
+from typing import Callable, Dict, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from loguru import logger
-from sklearn.metrics import accuracy_score, average_precision_score, confusion_matrix, \
-    f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    average_precision_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 
 from nndet.evaluator import AbstractEvaluator
 from nndet.utils.info import experimental
-
 
 __all__ = ["CaseEvaluator"]
 
@@ -186,7 +192,7 @@ class _CaseEvaluator(AbstractEvaluator):
             np.ndarray: predicted classes
         """
         _pred_scores = np.stack(self.results_list["case_scores"], axis=0) # N, num_classes
-        
+
         if self.target_class is not None:
             pred_scores = _pred_scores[:, self.target_class] # N
             # pred_classes = (np.argmax(_pred_scores, axis=1) == self.target_class).astype(np.int32) # N

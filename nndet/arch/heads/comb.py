@@ -14,17 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from abc import abstractmethod
+from typing import Dict, List, Optional, Tuple, TypeVar
+
 import torch
 import torch.nn as nn
-
 from torch import Tensor
-from typing import Dict, List, Tuple, Optional, TypeVar
-from abc import abstractmethod
 
-from nndet.core.boxes import BoxCoderND
-from nndet.core.boxes.sampler import AbstractSampler
 from nndet.arch.heads.classifier import Classifier
 from nndet.arch.heads.regressor import Regressor
+from nndet.core.boxes import BoxCoderND
+from nndet.core.boxes.sampler import AbstractSampler
 
 
 class AbstractHead(nn.Module):
@@ -40,7 +40,7 @@ class AbstractHead(nn.Module):
         Args
             x: feature maps
         """
-        raise NotImplementedError 
+        raise NotImplementedError
 
     @abstractmethod
     def compute_loss(self, *args, **kwargs) -> Dict[str, torch.Tensor]:

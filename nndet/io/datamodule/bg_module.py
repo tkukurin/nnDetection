@@ -15,17 +15,18 @@ limitations under the License.
 """
 
 import os
-from typing import Iterable, Optional, List, Sequence, Type
+from typing import Iterable, List, Optional, Sequence, Type
 
 import numpy as np
+from batchgenerators.dataloading.multi_threaded_augmenter import MultiThreadedAugmenter
+from batchgenerators.dataloading.single_threaded_augmenter import (
+    SingleThreadedAugmenter,
+)
 from loguru import logger
 
-from batchgenerators.dataloading.single_threaded_augmenter import SingleThreadedAugmenter
-from batchgenerators.dataloading.multi_threaded_augmenter import MultiThreadedAugmenter
-
 from nndet.io.augmentation import AUGMENTATION_REGISTRY
-from nndet.io.datamodule import DATALOADER_REGISTRY
 from nndet.io.augmentation.base import AugmentationSetup
+from nndet.io.datamodule import DATALOADER_REGISTRY
 from nndet.io.datamodule.base import BaseModule
 
 
@@ -51,7 +52,7 @@ def get_augmenter(dataloader,
     """
     Wrapper to switch between multi-threaded and single-threaded augmenter
     """
-    if multiprocessing: 
+    if multiprocessing:
         logger.info(f"Using {num_processes} num_processes "
                     f"and {num_cached_per_queue} num_cached_per_queue for augmentation.")
         loader = FixedLengthMultiThreadedAugmenter(
@@ -178,7 +179,7 @@ class Datamodule(BaseModule):
         params["use_mask_for_norm"] = self.plan['use_mask_for_norm']
         params["rotation_x"] = [i / 180 * np.pi for i in params["rotation_x"]]
         params["rotation_y"] = [i / 180 * np.pi for i in params["rotation_y"]]
-        params["rotation_z"] = [i / 180 * np.pi for i in params["rotation_z"]] 
+        params["rotation_z"] = [i / 180 * np.pi for i in params["rotation_z"]]
 
         augmentation_cls = AUGMENTATION_REGISTRY[params["transforms"]]
         self.augmentation = augmentation_cls(
@@ -215,10 +216,13 @@ class Datamodule(BaseModule):
             **self.dataloader_kwargs,
             )
 
+        num_threads = int(self.augment_cfg.get('num_threads', 12))
+        num_processes = max(1, min(num_threads, 16) - 1)
+        
         tr_gen = get_augmenter(
             dataloader=dl_tr,
             transform=self.augmentation.get_training_transforms(),
-            num_processes=min(int(self.augment_cfg.get('num_threads', 12)), 16) - 1,
+            num_processes=num_processes,
             num_cached_per_queue=self.augment_cfg.get('num_cached_per_thread', 2),
             multiprocessing=self.augment_cfg.get("multiprocessing", True),
             seeds=None,
@@ -250,10 +254,13 @@ class Datamodule(BaseModule):
             **self.dataloader_kwargs,
             )
 
+        num_threads = int(self.augment_cfg.get('num_threads', 12))
+        num_processes = max(1, min(num_threads, 16) - 1)
+
         val_gen = get_augmenter(
             dataloader=dl_val,
             transform=self.augmentation.get_validation_transforms(),
-            num_processes=min(int(self.augment_cfg.get('num_threads', 12)), 16) - 1,
+            num_processes=num_processes,
             num_cached_per_queue=self.augment_cfg.get('num_cached_per_thread', 2),
             multiprocessing=self.augment_cfg.get("multiprocessing", True),
             seeds=None,

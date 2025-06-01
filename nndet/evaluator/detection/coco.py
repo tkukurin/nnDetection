@@ -7,9 +7,10 @@
 # SPDX-License-Identifier: BSD-2-Clause-Views
 
 import time
+from typing import Dict, List, Sequence, Tuple, Union
+
 import numpy as np
 from loguru import logger
-from typing import Sequence, List, Dict, Union, Tuple
 
 from nndet.evaluator import DetectionMetric
 
@@ -258,7 +259,7 @@ class COCOMetric(DetectionMetric):
         }
 
 
-def compute_stats_single_threshold(tp: np.ndarray, fp: np.ndarray, dt_scores_sorted: np.ndarray, 
+def compute_stats_single_threshold(tp: np.ndarray, fp: np.ndarray, dt_scores_sorted: np.ndarray,
                                    recall_thresholds: Sequence[float], num_gt: int) -> Tuple[
                                        float, np.ndarray, np.ndarray]:
     """

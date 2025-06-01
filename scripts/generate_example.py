@@ -14,20 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import argparse
 import os
 import random
-import argparse
-from pathlib import Path
-from multiprocessing import Pool
 from itertools import repeat
+from multiprocessing import Pool
+from pathlib import Path
 
 import numpy as np
 import SimpleITK as sitk
 from loguru import logger
-
 from nndet.io import save_json
 from nndet.utils.check import env_guard
-
 
 # # 2D example
 # [Ignore, Not supported]
