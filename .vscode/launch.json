@@ -25,23 +25,6 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "nnDetection: DEBUG - Train without multiprocessing",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["000", "-o", "augment_cfg.multiprocessing=False", "-o", "exp.fold=0"],
-            "console": "integratedTerminal",
-            "env": {
-                "PYTHONPATH": ".",
-                "OMP_NUM_THREADS": "1",
-                "det_num_threads": "1",
-                "det_models": "${workspaceFolder}/models",
-                "det_data": "${workspaceFolder}/data",
-                "det_verbose": "1"
-            },
-            "cwd": "${workspaceFolder}"
-        },
-        {
             "name": "nnDetection: 1. Generate Example Data",
             "type": "debugpy",
             "request": "launch",
@@ -93,79 +76,20 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "nnDetection: 4. Train Fold 0 (Task 000)",
+            "name": "nnDetection: (DBG) 4. Train Fold 0 (Task 000)",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["000", "-o", "exp.fold=0"],
-            "console": "integratedTerminal",
-            "env": {
-                "PYTHONPATH": ".",
-                "OMP_NUM_THREADS": "1",
-                "det_num_threads": "2",
-                "det_models": "${workspaceFolder}/models",
-                "det_data": "${workspaceFolder}/data",
-                "det_verbose": "1"
-            },
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "nnDetection: 4. Train Fold 1 (Task 000)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["000", "-o", "exp.fold=1"],
-            "console": "integratedTerminal",
-            "env": {
-                "PYTHONPATH": ".",
-                "OMP_NUM_THREADS": "1",
-                "det_num_threads": "2",
-                "det_models": "${workspaceFolder}/models",
-                "det_data": "${workspaceFolder}/data",
-                "det_verbose": "1"
-            },
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "nnDetection: 4. Train Fold 2 (Task 000)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["000", "-o", "exp.fold=2"],
-            "console": "integratedTerminal",
-            "env": {
-                "PYTHONPATH": ".",
-                "OMP_NUM_THREADS": "1",
-                "det_num_threads": "2",
-                "det_models": "${workspaceFolder}/models",
-                "det_data": "${workspaceFolder}/data",
-                "det_verbose": "1"
-            },
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "nnDetection: 4. Train Fold 3 (Task 000)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["000", "-o", "exp.fold=3"],
-            "console": "integratedTerminal",
-            "env": {
-                "PYTHONPATH": ".",
-                "OMP_NUM_THREADS": "1",
-                "det_num_threads": "2",
-                "det_models": "${workspaceFolder}/models",
-                "det_data": "${workspaceFolder}/data",
-                "det_verbose": "1"
-            },
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "nnDetection: 4. Train Fold 4 (Task 000)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["000", "-o", "exp.fold=4"],
+            "args": [
+                "000",
+                // NOTE: debug, uncomment for full
+                "-o",
+                "augment_cfg.multiprocessing=False",
+                "exp.fold=0",
+                "trainer_cfg.num_train_batches_per_epoch=50",
+                "trainer_cfg.num_val_batches_per_epoch=10",
+                "trainer_cfg.max_num_epochs=5"
+            ],
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": ".",
