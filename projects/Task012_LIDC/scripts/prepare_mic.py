@@ -1,21 +1,17 @@
-import sys
 import os
-from itertools import repeat
-from multiprocessing.pool import Pool
+import sys
+from pathlib import Path
 
-import pandas as pd
 import numpy as np
 import numpy.testing as npt
+import pandas as pd
 import SimpleITK as sitk
-from pathlib import Path
 from loguru import logger
-from tqdm import tqdm
-from pathlib import Path
-
-from nndet.io.load import save_json, load_json
+from nndet.io.load import load_json, save_json
 from nndet.io.paths import subfiles
 from nndet.utils.check import env_guard
 from nndet.utils.info import maybe_verbose_iterable
+from tqdm import tqdm
 
 
 def prepare_case(case_dir: Path, target_dir: Path, df: pd.DataFrame):
@@ -102,7 +98,7 @@ def main():
     det_data_dir = Path(os.getenv('det_data'))
     task_data_dir = det_data_dir / "Task012_LIDC"
     source_data_dir = task_data_dir / "raw"
-    
+
     if not (p := source_data_dir / "data_nrrd").is_dir():
         raise ValueError(f"Expted {p} to contain LIDC data")
     if not (p := source_data_dir / 'characteristics.csv').is_file():

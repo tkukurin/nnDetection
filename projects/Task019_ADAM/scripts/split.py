@@ -3,10 +3,9 @@ from collections import OrderedDict
 from pathlib import Path
 
 import numpy as np
-from sklearn.model_selection import GroupKFold
-
-from nndet.utils.check import env_guard
 from nndet.io import get_case_ids_from_dir, save_pickle
+from nndet.utils.check import env_guard
+from sklearn.model_selection import GroupKFold
 
 
 @env_guard
@@ -35,7 +34,7 @@ def main():
         splits[-1]['val'] = test_keys
         print(f"Generated split: {splits[-1]}")
     save_pickle(splits, splits_file)
-   
+
 
 if __name__ == '__main__':
     main()

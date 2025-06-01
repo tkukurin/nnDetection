@@ -3,7 +3,6 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-
 from nndet.io import save_json
 from nndet.utils.check import env_guard
 from nndet.utils.info import maybe_verbose_iterable
@@ -77,7 +76,7 @@ def main():
     image_paths.sort()
     label_paths = list((source_data_dir / "labelsTr").glob("*.nii.gz"))
     label_paths.sort()
-    
+
     print(f"Found {len(image_paths)} data files and {len(label_paths)} label files.")
     assert len(image_paths) == len(label_paths)
 

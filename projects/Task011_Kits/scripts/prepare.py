@@ -1,10 +1,9 @@
-import shutil
 import os
+import shutil
 import sys
 from pathlib import Path
 
 from loguru import logger
-
 from nndet.io import save_json
 from nndet.io.prepare import create_test_split
 from nndet.utils.check import env_guard
