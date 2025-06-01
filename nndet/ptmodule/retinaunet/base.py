@@ -330,7 +330,7 @@ class RetinaUNetModule(LightningBaseModuleSWA):
             poly_gamma=self.trainer_cfg["poly_gamma"],
             num_iterations=num_iterations
         )
-        return [optimizer], {'scheduler': scheduler, 'interval': 'step'}
+        return [optimizer], [{'scheduler': scheduler, 'interval': 'step'}]
 
     @classmethod
     def from_config_plan(cls,

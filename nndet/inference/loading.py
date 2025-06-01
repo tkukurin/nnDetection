@@ -85,15 +85,24 @@ def load_final_model(
 
     model_names = list(source_models.glob('*.ckpt'))
     model_names = [m for m in model_names if identifier in str(m.stem)]
-    assert len(model_names) == 1, f"Found wrong number of models, {model_names} in {source_models} with {identifier}"
+    
+    if len(model_names) == 0:
+        raise RuntimeError(f"Found no models with identifier '{identifier}' in {source_models}")
+    elif len(model_names) > 1:
+        # Sort to get the latest version (e.g., model_last-v3.ckpt over model_last.ckpt)
+        model_names_sorted = sorted(model_names, key=lambda x: x.stem, reverse=True)
+        logger.warning(f"Found {len(model_names)} models with identifier '{identifier}': {[m.name for m in model_names]}. "
+                      f"Using latest version: {model_names_sorted[0].name}")
+        path = model_names_sorted[0]
+    else:
+        path = model_names[0]
 
-    path = model_names[0]
     model = MODULE_REGISTRY[cfg["module"]](
         model_cfg=cfg["model_cfg"],
         trainer_cfg=cfg["trainer_cfg"],
         plan=plan,
         )
-    state_dict = torch.load(path, map_location="cpu")["state_dict"]
+    state_dict = torch.load(path, map_location="cpu", weights_only=False)["state_dict"]
     t = model.load_state_dict(state_dict)
     logger.info(f"Loaded {path} with {t}")
     model.float()
@@ -137,7 +146,7 @@ def load_all_models(
             trainer_cfg=cfg["trainer_cfg"],
             plan=plan,
             )
-        state_dict = torch.load(path, map_location="cpu")["state_dict"]
+        state_dict = torch.load(path, map_location="cpu", weights_only=False)["state_dict"]
         t = model.load_state_dict(state_dict)
         logger.info(f"Loaded {path} with {t}")
         model.float()

@@ -87,23 +87,59 @@ class BaseSWA(StochasticWeightAveraging):
         Repalce current lr scheduler with SWA scheduler
         """
         if trainer.current_epoch == self.swa_start:
-            optimizer = trainer.optimizers[0]
+            # PyTorch Lightning v2.0 compatibility: use strategy to get optimizers
+            if hasattr(trainer, 'strategy') and hasattr(trainer.strategy, 'optimizers'):
+                optimizers = trainer.strategy.optimizers
+            else:
+                optimizers = trainer.optimizers
+            
+            if isinstance(optimizers, list) and len(optimizers) > 0:
+                optimizer = optimizers[0]
+            else:
+                # Fallback to pl_module's optimizers
+                opt_config = pl_module.configure_optimizers()
+                if isinstance(opt_config, tuple) and len(opt_config) >= 1:
+                    optimizer = opt_config[0][0] if isinstance(opt_config[0], list) else opt_config[0]
+                else:
+                    optimizer = opt_config
 
             # move average model to request device.
             self._average_model = self._average_model.to(self._device or pl_module.device)
 
             _scheduler = self.get_swa_scheduler(optimizer)
-            self._swa_scheduler = _get_default_scheduler_config()
-            if not isinstance(_scheduler, dict):
-                _scheduler = {"scheduler": _scheduler}
-            self._swa_scheduler.update(_scheduler)
-
-            if trainer.lr_schedulers:
-                lr_scheduler = trainer.lr_schedulers[0]["scheduler"]
-                rank_zero_warn(f"Swapping lr_scheduler {lr_scheduler} for {self._swa_scheduler}")
-                trainer.lr_schedulers[0] = self._swa_scheduler
+            
+            # Store the actual scheduler object, not a config dict
+            if isinstance(_scheduler, dict):
+                self._swa_scheduler = _scheduler["scheduler"]
+                scheduler_config = _scheduler
             else:
-                trainer.lr_schedulers.append(self._swa_scheduler)
+                self._swa_scheduler = _scheduler
+                scheduler_config = {"scheduler": _scheduler}
+
+            # PyTorch Lightning v2.0 compatibility: use lr_scheduler_configs instead of lr_schedulers
+            if hasattr(trainer, 'lr_scheduler_configs'):
+                lr_scheduler_configs = trainer.lr_scheduler_configs
+            else:
+                # Fallback for older versions
+                lr_scheduler_configs = getattr(trainer, 'lr_schedulers', [])
+
+            if lr_scheduler_configs:
+                if hasattr(trainer, 'lr_scheduler_configs'):
+                    lr_scheduler = lr_scheduler_configs[0].scheduler
+                else:
+                    lr_scheduler = lr_scheduler_configs[0]["scheduler"]
+                rank_zero_warn(f"Swapping lr_scheduler {lr_scheduler} for {self._swa_scheduler}")
+                if hasattr(trainer, 'lr_scheduler_configs'):
+                    # For v2.0: need to update the actual config object
+                    trainer.lr_scheduler_configs[0].scheduler = self._swa_scheduler
+                    trainer.lr_scheduler_configs[0].interval = scheduler_config.get("interval", "epoch")
+                    trainer.lr_scheduler_configs[0].frequency = scheduler_config.get("frequency", 1)
+                else:
+                    trainer.lr_schedulers[0] = scheduler_config
+            else:
+                # For new schedulers, let the trainer handle the configuration
+                # Simply set the optimizer with the scheduler - trainer will configure it
+                pass
 
             self.n_averaged = torch.tensor(0, dtype=torch.long, device=pl_module.device)
 

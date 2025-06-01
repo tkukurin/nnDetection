@@ -27,6 +27,9 @@ except ImportError:
     nms_gpu = None
 from nndet.core.boxes.ops import box_iou
 
+# Flag to ensure CPU fallback warning only shows once
+_cpu_fallback_warned = False
+
 
 def nms_cpu(boxes, scores, thresh):
     """
@@ -67,6 +70,8 @@ def nms(boxes: Tensor, scores: Tensor, iou_threshold: float):
         keep (Tensor): int64 tensor with the indices of the elements that have been kept by NMS, 
             sorted in decreasing order of scores
     """
+    global _cpu_fallback_warned
+    
     if boxes.shape[1] == 4:
         # prefer torchvision in 2d because they have c++ cpu version
         nms_fn = nms_2d
@@ -75,7 +80,9 @@ def nms(boxes: Tensor, scores: Tensor, iou_threshold: float):
             nms_fn = nms_gpu
         else:
             # Fallback to CPU implementation when GPU extensions are not available
-            logger.warning("Using CPU NMS fallback (GPU extensions not available or on CPU)")
+            if not _cpu_fallback_warned:
+                logger.warning("Using CPU NMS fallback (GPU extensions not available or on CPU)")
+                _cpu_fallback_warned = True
             nms_fn = nms_cpu
     return nms_fn(boxes.float(), scores.float(), iou_threshold)
 

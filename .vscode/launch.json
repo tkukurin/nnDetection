@@ -88,7 +88,7 @@
                 "exp.fold=0",
                 "trainer_cfg.num_train_batches_per_epoch=50",
                 "trainer_cfg.num_val_batches_per_epoch=10",
-                "trainer_cfg.max_num_epochs=5"
+                "trainer_cfg.max_num_epochs=1"
             ],
             "console": "integratedTerminal",
             "env": {
@@ -106,7 +106,16 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["000", "--sweep"],
+            "args": [
+                "000",
+                "--sweep",
+                // NOTE: debug, uncomment for full
+                "-o",
+                "trainer_cfg.num_train_batches_per_epoch=10",
+                "trainer_cfg.num_val_batches_per_epoch=10",
+                "trainer_cfg.max_num_epochs=1",
+                "trainer_cfg.swa_epochs=1"
+            ],
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": ".",
