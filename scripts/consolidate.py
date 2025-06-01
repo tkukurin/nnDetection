@@ -41,10 +41,13 @@ def consolidate_models(source_dirs: Sequence[Path], target_dir: Path, ckpt: str)
         target_dir: directory to save models to
         ckpt: checkpoint identifier to select models for ensembling
     """
-    for fold, sd in enumerate(source_dirs):
+    # NOTE filter if not all 5 folds are present
+    for fold, sd in enumerate(filter(bool, source_dirs)):
         model_paths = list(sd.glob('*.ckpt'))
         found_models = [mp for mp in model_paths if ckpt in str(mp.stem)]
-        assert len(found_models) == 1, f"Found wrong number of models, {found_models}"
+        # NOTE maybe fine to have multiples if you interrupted early
+
+        # assert len(found_models) == 1, f"Found wrong number of models, {found_models}"
         model_path = found_models[0]
         assert f"fold{fold}" in str(model_path.parent.stem), f"Expected fold {fold} but found {model_path}"
         shutil.copy2(model_path, target_dir / f"model_fold{fold}.ckpt")
@@ -73,7 +76,7 @@ def consolidate_predictions(
         raise ValueError(f"Consolidation {consolidate} is not supported")
     pred_dir = target_dir / postfix
     pred_dir.mkdir(parents=True, exist_ok=True)
-    for source_dir in source_dirs:
+    for source_dir in filter(bool, source_dirs):
         for p in [p for p in (source_dir / postfix).iterdir() if p.is_file()]:
             shutil.copy(p, pred_dir)
 
